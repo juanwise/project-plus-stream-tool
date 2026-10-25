@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Plus Next Match</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  #wrap { position: absolute; left: 140px; top: 760px; width: 1640px; height: 250px; }
+  .tab { position: absolute; left: 50%; top: 0; width: 360px; margin-left: -180px; height: 52px; background: linear-gradient(90deg, #8cff4f, #1ee27a); color: #03150a; font-size: 32px; font-weight: 900; letter-spacing: 8px;
+    display: flex; align-items: center; justify-content: center; clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%); z-index: 4; }
+  #row { position: absolute; left: 0; right: 0; top: 52px; height: 190px; display: flex; }
+  .side { position: relative; width: 640px; height: 190px; display: flex; }
+  #side2 { flex-direction: row-reverse; }
+  .face { width: 190px; height: 190px; flex: none; position: relative; overflow: hidden; background: linear-gradient(#0c9b55, #05361e); border: 5px solid var(--lime); }
+  .face::before { content: ""; position: absolute; inset: 0; background: var(--plus-pattern); background-size: 100px 100px; }
+  .face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  #img2.mirror { transform: scaleX(-1); }
+  .plate { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 28px; background: linear-gradient(90deg, #031008, #07482a 70%, #0b8a4b); border-top: 5px solid var(--lime); }
+  #side2 .plate { align-items: flex-end; background: linear-gradient(270deg, #031008, #07482a 70%, #0b8a4b); }
+  .line { display: inline-flex; align-items: baseline; max-width: 100%; overflow: hidden; }
+  .team { color: var(--lime); font-size: 32px; margin-right: 14px; }
+  .team:empty { display: none; }
+  .team.has::after { content: "|"; margin-left: 14px; color: var(--mint); opacity: .55; }
+  .name { font-size: 64px; font-weight: 900; line-height: 74px; letter-spacing: -1px; }
+  .charname { font-size: 24px; color: var(--muted); letter-spacing: 4px; line-height: 30px; }
+  #center { width: 360px; height: 190px; flex: none; position: relative; background: linear-gradient(180deg, #031008, #05361e); border-top: 5px solid var(--lime);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #center::before, #center::after { content: ""; position: absolute; top: -5px; bottom: 0; width: 30px; background: inherit; border-top: 5px solid var(--lime); }
+  #center::before { left: -29px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+  #center::after { right: -29px; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+  #vsmark { position: relative; width: 120px; height: 120px; }
+  #vsmark svg { position: absolute; inset: 0; width: 120px; height: 120px; }
+  #vsmark span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; font-style: italic; color: #03150a; padding-bottom: 3px; }
+  #round { font-size: 28px; font-weight: 900; margin-top: 0; max-width: 330px; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <div class="tab">UP NEXT</div>
+    <div id="row">
+      <div id="side1" class="side">
+        <div class="face"><img id="img1" alt=""></div>
+        <div class="plate"><div class="line"><span id="team1" class="team"></span><span id="name1" class="name"></span></div><div id="char1" class="charname"></div></div>
+      </div>
+      <div id="center"><div id="vsmark"><span>VS</span></div><div id="round"></div></div>
+      <div id="side2" class="side">
+        <div class="face"><img id="img2" alt=""></div>
+        <div class="plate"><div class="line"><span id="team2" class="team"></span><span id="name2" class="name"></span></div><div id="char2" class="charname"></div></div>
+      </div>
+    </div>
+  </div>
+
+<script src="common.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  $('vsmark').insertAdjacentHTML('afterbegin', PP.plusSvg(120));
+  const key = (p) => ({ name: p.name, team: p.team, character: p.character, alt: p.alt });
+
+  function fit(n) {
+    const name = $('name' + n), team = $('team' + n), line = name.parentElement, avail = line.parentElement.clientWidth - 56;
+    let size = 64; name.style.fontSize = ''; team.style.fontSize = ''; name.style.lineHeight = '';
+    while (line.scrollWidth > avail && size > 24) { size -= 3; name.style.fontSize = size + 'px'; team.style.fontSize = Math.round(size * .5) + 'px'; name.style.lineHeight = Math.round(size * 1.15) + 'px'; }
+  }
+
+  PP.onState((s, prev) => {
+    [s.next.p1, s.next.p2].forEach((p, i) => {
+      const n = i + 1;
+      PP.setText($('name' + n), p.name);
+      PP.setText($('team' + n), p.team);
+      $('team' + n).classList.toggle('has', !!p.team);
+      PP.setText($('char' + n), PP.charName(p.character));
+      PP.setImg($('img' + n), PP.art(p.character, p.alt));
+      fit(n);
+      if (i === 1) $('img2').classList.toggle('mirror', !!s.mirrorPlayer2);
+      if (!prev || !PP.same(key(p), key(i ? prev.next.p2 : prev.next.p1))) PP.slideIn($('side' + n), i ? 'right' : 'left', 100);
+    });
+    PP.setText($('round'), s.next.round);
+    if (!prev || prev.next.round !== s.next.round) { PP.slideIn($('center'), 'up', 0); PP.slideIn(document.querySelector('.tab'), 'down', 200); }
+  });
+  document.fonts.ready.then(() => { fit(1); fit(2); });
+</script>
+</body>
+</html>

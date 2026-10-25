@@ -1,0 +1,43 @@
+/* Shared look of the overlays: green, plus-sign patterns, Inter (free, SIL OFL). */
+@font-face { font-family: "PPInter"; font-weight: 600; src: url("/assets/fonts/Inter-SemiBold.otf"); }
+@font-face { font-family: "PPInter"; font-weight: 800; src: url("/assets/fonts/Inter-ExtraBold.otf"); }
+@font-face { font-family: "PPInter"; font-weight: 900; src: url("/assets/fonts/Inter-Black.otf"); }
+
+:root {
+  --ink: #031008;
+  --deep: #05361e;
+  --green: #0c9b55;
+  --bright: #1ee27a;
+  --lime: #8cff4f;
+  --mint: #c8ffe3;
+  --text: #ffffff;
+  --muted: #a9e8c6;
+  /* a plus sign, used as the repeating pattern */
+  --plus-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><g fill='%23ffffff'><path opacity='.10' d='M68 40h24v28h28v24H92v28H68V92H40V68h28z'/><path opacity='.07' d='M-6 -26h12v14h14v12H6v14h-12V0h-14v-12h14zM154 -26h12v14h14v12h-14v14h-12V0h-14v-12h14zM-6 134h12v14h14v12H6v14h-12v-14h-14v-12h14zM154 134h12v14h14v12h-14v14h-12v-14h-14v-12h14z'/></g></svg>");
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  width: 1920px; height: 1080px; overflow: hidden; position: relative;
+  font-family: "PPInter", "Inter", "Segoe UI", Arial, sans-serif; font-weight: 800;
+  color: var(--text); text-transform: uppercase; white-space: nowrap;
+  background: transparent;
+}
+.abs { position: absolute; }
+
+/* green background with a slowly drifting plus pattern */
+.pp-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    var(--plus-pattern),
+    radial-gradient(ellipse at 50% 40%, #10b866 0%, #0a8a4b 38%, #05361e 78%, #021409 100%);
+  background-size: 160px 160px, auto;
+  animation: drift 40s linear infinite;
+}
+@keyframes drift { to { background-position: 160px 160px, 0 0; } }
+
+/* the Project Plus "+" mark: a green gradient plus with a black outline */
+.plus-mark { display: block; overflow: visible; filter: drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+
+.fade-in { opacity: 0; }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Plus Top 8</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  #title { position: absolute; left: 90px; top: 34px; height: 130px; display: flex; align-items: center; gap: 28px; z-index: 2; }
+  #title h1 { margin: 0; font-size: 104px; font-weight: 900; font-style: italic; line-height: 110px; letter-spacing: -3px; text-shadow: 0 5px 0 rgba(0,0,0,.55); }
+  #tournament { font-size: 34px; letter-spacing: 6px; color: var(--mint); margin-top: 6px; }
+  #grid { position: absolute; left: 90px; top: 184px; width: 1740px; z-index: 2; }
+  .card { position: absolute; width: 420px; background: linear-gradient(170deg, #0b8f4e, #03200f 78%); overflow: hidden;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 34px), calc(100% - 34px) 100%, 0 100%); box-shadow: inset 0 0 0 5px rgba(140,255,79,.0); }
+  .card::before { content: ""; position: absolute; inset: 0; background: var(--plus-pattern); background-size: 120px 120px; opacity: .9; }
+  .card.big { height: 450px; } .card.small { height: 330px; }
+  .card .art { position: absolute; left: 0; right: 0; top: 0; bottom: 92px; width: 100%; height: calc(100% - 92px); object-fit: contain; object-position: center bottom; filter: drop-shadow(0 8px 12px rgba(0,0,0,.5)); }
+  .card .info { position: absolute; left: 0; right: 0; bottom: 0; height: 92px; background: linear-gradient(90deg, #031008, #07482a); border-top: 5px solid var(--lime); padding: 0 24px; display: flex; align-items: center; }
+  .card .line { display: inline-flex; align-items: baseline; max-width: 100%; overflow: hidden; }
+  .card .team { color: var(--lime); font-size: 26px; margin-right: 10px; }
+  .card .team:empty { display: none; }
+  .card .team.has::after { content: "|"; margin-left: 10px; color: var(--mint); opacity: .55; }
+  .card .name { font-size: 44px; font-weight: 900; letter-spacing: -.5px; }
+  .place { position: absolute; left: 12px; top: 8px; width: 96px; height: 96px; z-index: 3; }
+  .place svg { position: absolute; inset: 0; width: 96px; height: 96px; }
+  .place span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; color: #03150a; padding-bottom: 2px; }
+  .card.first::after { content: ""; position: absolute; inset: 0; border: 6px solid var(--lime); z-index: 4; pointer-events: none; }
+  .card.first .info { border-top-color: #e9ffd0; background: linear-gradient(90deg, #031008, #0a6b3a); }
+  .card.empty .art { visibility: hidden; }
+</style>
+</head>
+<body>
+  <div class="pp-bg"></div>
+  <div id="title"><div id="titlelogo"></div><div><h1>Top 8</h1><div id="tournament"></div></div></div>
+  <div id="grid"></div>
+
+<script src="common.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  $('titlelogo').innerHTML = PP.plusSvg(120);
+  // places 1-4 on the top row, 5-8 below
+  const grid = $('grid');
+  for (let i = 0; i < 8; i++) {
+    const big = i < 4, col = i % 4, y = big ? 0 : 480;
+    const c = document.createElement('div');
+    c.className = 'card ' + (big ? 'big' : 'small') + (i === 0 ? ' first' : '');
+    c.id = 'card' + i;
+    c.style.left = col * 440 + 'px'; c.style.top = y + 'px';
+    c.innerHTML = `<img class="art" alt=""><div class="place">${PP.plusSvg(96)}<span>${i + 1}</span></div>
+      <div class="info"><div class="line"><span class="team"></span><span class="name"></span></div></div>`;
+    grid.appendChild(c);
+  }
+  const key = (p) => ({ name: p.name, team: p.team, character: p.character, alt: p.alt });
+
+  function fit(c) {
+    const name = c.querySelector('.name'), team = c.querySelector('.team'), line = name.parentElement;
+    let size = 44; name.style.fontSize = ''; team.style.fontSize = '';
+    while (line.scrollWidth > 372 && size > 20) { size -= 2; name.style.fontSize = size + 'px'; team.style.fontSize = Math.round(size * .6) + 'px'; }
+  }
+
+  PP.onState((s, prev) => {
+    PP.setText($('tournament'), s.tournament);
+    s.top8.forEach((p, i) => {
+      const c = $('card' + i);
+      PP.setText(c.querySelector('.name'), p.name);
+      PP.setText(c.querySelector('.team'), p.team);
+      c.querySelector('.team').classList.toggle('has', !!p.team);
+      PP.setImg(c.querySelector('.art'), PP.art(p.character, p.alt));
+      c.classList.toggle('empty', !p.character);
+      fit(c);
+      if (!prev || !PP.same(key(p), key(prev.top8[i]))) PP.slideIn(c, 'up', 60 * (i < 4 ? i : i - 4) + (i < 4 ? 0 : 250));
+    });
+  });
+  document.fonts.ready.then(() => document.querySelectorAll('.card').forEach(fit));
+</script>
+</body>
+</html>

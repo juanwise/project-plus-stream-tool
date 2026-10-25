@@ -1,0 +1,212 @@
+[
+ {
+  "name": "Mario",
+  "code": "mario",
+  "costumes": 18
+ },
+ {
+  "name": "Luigi",
+  "code": "luigi",
+  "costumes": 15
+ },
+ {
+  "name": "Peach",
+  "code": "peach",
+  "costumes": 3
+ },
+ {
+  "name": "Wario",
+  "code": "wario",
+  "costumes": 18
+ },
+ {
+  "name": "Yoshi",
+  "code": "yoshi",
+  "costumes": 23
+ },
+ {
+  "name": "Bowser",
+  "code": "bowser",
+  "costumes": 15
+ },
+ {
+  "name": "Donkey Kong",
+  "code": "donkey_kong",
+  "costumes": 18
+ },
+ {
+  "name": "Diddy Kong",
+  "code": "diddy_kong",
+  "costumes": 15
+ },
+ {
+  "name": "Captain Falcon",
+  "code": "captain_falcon",
+  "costumes": 13
+ },
+ {
+  "name": "Fox",
+  "code": "fox",
+  "costumes": 15
+ },
+ {
+  "name": "Falco",
+  "code": "falco",
+  "costumes": 15
+ },
+ {
+  "name": "Wolf",
+  "code": "wolf",
+  "costumes": 22
+ },
+ {
+  "name": "Link",
+  "code": "link",
+  "costumes": 18
+ },
+ {
+  "name": "Toon Link",
+  "code": "toon_link",
+  "costumes": 12
+ },
+ {
+  "name": "Zelda",
+  "code": "zelda",
+  "costumes": 7
+ },
+ {
+  "name": "Sheik",
+  "code": "sheik",
+  "costumes": 15
+ },
+ {
+  "name": "Ganondorf",
+  "code": "ganondorf",
+  "costumes": 18
+ },
+ {
+  "name": "Pikachu",
+  "code": "pikachu",
+  "costumes": 20
+ },
+ {
+  "name": "Jigglypuff",
+  "code": "jigglypuff",
+  "costumes": 15
+ },
+ {
+  "name": "Mewtwo",
+  "code": "mewtwo",
+  "costumes": 15
+ },
+ {
+  "name": "Squirtle",
+  "code": "squirtle",
+  "costumes": 15
+ },
+ {
+  "name": "Ivysaur",
+  "code": "ivysaur",
+  "costumes": 18
+ },
+ {
+  "name": "Charizard",
+  "code": "charizard",
+  "costumes": 15
+ },
+ {
+  "name": "Lucario",
+  "code": "lucario",
+  "costumes": 18
+ },
+ {
+  "name": "Samus",
+  "code": "samus",
+  "costumes": 19
+ },
+ {
+  "name": "Zero Suit Samus",
+  "code": "zero_suit_samus",
+  "costumes": 19
+ },
+ {
+  "name": "Ness",
+  "code": "ness",
+  "costumes": 15
+ },
+ {
+  "name": "Lucas",
+  "code": "lucas",
+  "costumes": 13
+ },
+ {
+  "name": "Kirby",
+  "code": "kirby",
+  "costumes": 18
+ },
+ {
+  "name": "Meta Knight",
+  "code": "meta_knight",
+  "costumes": 18
+ },
+ {
+  "name": "King Dedede",
+  "code": "king_dedede",
+  "costumes": 15
+ },
+ {
+  "name": "Marth",
+  "code": "marth",
+  "costumes": 15
+ },
+ {
+  "name": "Roy",
+  "code": "roy",
+  "costumes": 10
+ },
+ {
+  "name": "Ike",
+  "code": "ike",
+  "costumes": 15
+ },
+ {
+  "name": "Mr. Game & Watch",
+  "code": "mr_game_and_watch",
+  "costumes": 18
+ },
+ {
+  "name": "R.O.B.",
+  "code": "rob",
+  "costumes": 16
+ },
+ {
+  "name": "Ice Climbers",
+  "code": "ice_climbers",
+  "costumes": 14
+ },
+ {
+  "name": "Pit",
+  "code": "pit",
+  "costumes": 15
+ },
+ {
+  "name": "Olimar",
+  "code": "olimar",
+  "costumes": 15
+ },
+ {
+  "name": "Snake",
+  "code": "snake",
+  "costumes": 13
+ },
+ {
+  "name": "Sonic",
+  "code": "sonic",
+  "costumes": 22
+ },
+ {
+  "name": "Knuckles",
+  "code": "knuckles",
+  "costumes": 22
+ }
+]

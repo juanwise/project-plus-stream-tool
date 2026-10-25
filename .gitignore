@@ -1,0 +1,4 @@
+node_modules/
+dist/
+stream-tool-data/
+*.log

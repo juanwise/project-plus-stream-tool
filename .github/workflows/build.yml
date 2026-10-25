@@ -1,0 +1,41 @@
+name: Build Windows release
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - name: Check the server and overlays load
+        run: node tools/selfTest.js
+      - run: npm run dist
+      - name: Name the zip after the release
+        id: zip
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          [ -z "$TAG" ] && TAG="build-${GITHUB_SHA::7}"
+          cp dist/*.zip "ProjectPlusStreamTool_${TAG}_windows.zip"
+          echo "file=ProjectPlusStreamTool_${TAG}_windows.zip" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ProjectPlusStreamTool
+          path: ${{ steps.zip.outputs.file }}
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "${{ steps.zip.outputs.file }}" --clobber

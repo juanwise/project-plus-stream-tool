@@ -1,0 +1,50 @@
+:root { --bg: #04110a; --card: #0a2316; --card2: #0f301e; --line: #1a4a2f; --green: #1ee27a; --lime: #8cff4f; --text: #e9fff3; --muted: #8fc9a8; --warn: #ffb02e; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 "Segoe UI", Inter, Arial, sans-serif; }
+header { display: flex; align-items: center; gap: 18px; padding: 10px 18px; background: #031008; border-bottom: 2px solid var(--green); position: sticky; top: 0; z-index: 5; }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 16px; white-space: nowrap; } .brand b { color: var(--lime); }
+nav { display: flex; gap: 4px; flex: 1; }
+.tab { background: transparent; color: var(--muted); border: 0; border-bottom: 3px solid transparent; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.tab.active { color: var(--text); border-bottom-color: var(--lime); }
+.actions { display: flex; align-items: center; gap: 12px; }
+.status { font-size: 12px; padding: 3px 10px; border-radius: 99px; background: #0b3b22; color: var(--lime); } .status.off { background: #3b1a0b; color: var(--warn); }
+.dirty { color: var(--warn); font-size: 12px; }
+button { font: inherit; color: var(--text); background: var(--card2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--green); } button:disabled { opacity: .4; cursor: default; }
+button small { display: block; font-size: 10px; color: var(--muted); font-weight: 400; }
+button.primary { background: linear-gradient(135deg, #1ee27a, #8cff4f); color: #03150a; font-weight: 800; border: 0; padding: 9px 22px; font-size: 15px; }
+button.primary small { display: inline; color: #0a5a2e; margin-left: 6px; }
+button.primary.pending { box-shadow: 0 0 0 3px rgba(140,255,79,.45); }
+button.warn { border-color: var(--warn); color: var(--warn); } button.warn.on { background: var(--warn); color: #231400; font-weight: 700; }
+main { padding: 16px 18px 40px; max-width: 1180px; margin: 0 auto; }
+.tabpane { display: none; } .tabpane.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+.card h3 { margin: 0 0 6px; color: var(--lime); }
+input[type=text], select { width: 100%; background: #031008; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; }
+input[type=text]:focus, select:focus { outline: 2px solid var(--green); border-color: transparent; }
+label { display: block; color: var(--muted); font-size: 12px; font-weight: 600; } label input, label select { margin-top: 3px; color: var(--text); }
+.check { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 14px; margin-top: 6px; } .check input { width: 18px; height: 18px; accent-color: #1ee27a; }
+.matchbar { display: grid; grid-template-columns: 1.4fr 1fr auto auto; gap: 14px; align-items: end; }
+.field { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 12px; font-weight: 600; } .field.gf { gap: 6px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; } .seg button { border: 0; border-radius: 0; padding: 7px 18px; background: #031008; font-weight: 700; } .seg button.on { background: var(--green); color: #03150a; }
+.hint { color: var(--muted); font-size: 12.5px; margin: -4px 4px 12px; } .hint b { color: var(--lime); }
+.players { display: grid; grid-template-columns: 1fr 96px 1fr; gap: 14px; align-items: start; }
+.mid { display: flex; flex-direction: column; gap: 10px; padding-top: 70px; } .mid button { padding: 10px 6px; font-weight: 700; }
+.player h4 { margin: 0 0 8px; color: var(--lime); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+.row2 { display: grid; grid-template-columns: 110px 1fr; gap: 10px; margin-bottom: 10px; }
+.charrow { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: start; }
+.costumes { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 5px; margin-top: 8px; max-height: 190px; overflow: auto; padding: 2px; }
+.costumes button { padding: 0; width: 100%; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: #031008; font-size: 11px; position: relative; }
+.costumes button img { width: 100%; height: 100%; object-fit: cover; display: block; } .costumes button.on { outline: 3px solid var(--lime); }
+.preview { width: 120px; height: 150px; background: radial-gradient(circle at 50% 30%, #0d7a43, #031008); border-radius: 10px; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; border: 1px solid var(--line); }
+.preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.scorebox { display: flex; align-items: center; gap: 10px; margin-top: 12px; } .scorebox .num { flex: 1; text-align: center; font-size: 44px; font-weight: 900; color: var(--lime); line-height: 1; }
+.scorebox button { width: 56px; height: 48px; font-size: 24px; font-weight: 800; padding: 0; } .scorebox button.plus { background: var(--green); color: #03150a; border: 0; }
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.entry { display: grid; grid-template-columns: 36px 90px 1.4fr 1.2fr 80px 44px; gap: 8px; align-items: center; } .entry .place { font-size: 20px; font-weight: 900; color: var(--lime); text-align: center; }
+.entry img.ic { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #031008; border: 1px solid var(--line); }
+.nextp { display: grid; grid-template-columns: 90px 1.4fr 1.2fr 80px 44px; gap: 8px; align-items: center; }
+.wide { margin-bottom: 10px; max-width: 360px; } .row-actions { display: flex; gap: 10px; margin-top: 12px; }
+#urls .url { display: flex; gap: 10px; align-items: center; margin: 8px 0; } #urls .url b { width: 110px; } #urls code { flex: 1; }
+code { background: #031008; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; color: var(--lime); word-break: break-all; }
+p { color: var(--muted); margin: 6px 0; }

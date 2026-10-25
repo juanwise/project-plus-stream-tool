@@ -1,0 +1,36 @@
+{
+  "name": "project-plus-stream-tool",
+  "version": "0.1.0",
+  "description": "Stream tool (control panel and OBS overlays) for Project Plus",
+  "main": "main.js",
+  "author": "juanwise",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "server": "node server.js",
+    "dist": "electron-builder --win zip --publish never"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.juanwise.projectplusstreamtool",
+    "productName": "ProjectPlusStreamTool",
+    "files": [
+      "main.js",
+      "server.js",
+      "overlays/**",
+      "panel/**",
+      "assets/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "zip",
+      "icon": "assets/icon.png"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}
