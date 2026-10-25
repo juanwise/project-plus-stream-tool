@@ -104,6 +104,7 @@
     const centerKey = [round, s.tournament, s.bestOf];
     PP.setText($('tournament'), s.tournament);
     PP.setText($('round'), round);
+    $('round').style.display = 'inline-block'; PP.fitText($('round'), 660, 62, 28);
     $('round').classList.toggle('reset', !!(s.grandFinals.on && s.grandFinals.reset));
     PP.setText($('bestof'), 'Best of ' + s.bestOf);
     if (!prev || !PP.same(centerKey, [PP.roundLabel(prev), prev.tournament, prev.bestOf])) {
@@ -111,7 +112,7 @@
       PP.anim($('vs'), [{ opacity: 0, transform: 'scale(.4) rotate(-90deg)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 150 });
     }
   });
-  document.fonts.ready.then(() => { fitName(1); fitName(2); });
+  document.fonts.ready.then(() => { fitName(1); fitName(2); PP.fitText($('round'), 660, 62, 28); });
 </script>
 </body>
 </html>

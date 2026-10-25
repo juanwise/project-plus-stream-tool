@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="theme.css">
 <style>
   #bar { position: absolute; top: 34px; left: 160px; width: 1600px; height: 120px; display: flex; align-items: stretch; }
-  .side { position: relative; width: 640px; height: 120px; display: flex; }
+  .side { position: relative; width: 620px; height: 120px; display: flex; }
   #side2 { flex-direction: row-reverse; }
   .face { width: 120px; height: 120px; position: relative; flex: none; background: linear-gradient(#0c9b55, #05361e); border: 5px solid var(--lime); overflow: hidden; z-index: 2; }
   .face::before { content: ""; position: absolute; inset: 0; background: var(--plus-pattern); background-size: 80px 80px; opacity: .9; }
@@ -31,12 +31,12 @@
   .pip.on path { fill: var(--lime); stroke: #031008; stroke-width: 7; }
   .pip.on { filter: drop-shadow(0 0 6px rgba(140,255,79,.8)); }
 
-  #center { position: relative; width: 320px; height: 120px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  #center { position: relative; width: 360px; height: 120px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: linear-gradient(180deg, #031008, #05361e); border-top: 5px solid var(--lime); z-index: 3; }
   #center::before, #center::after { content: ""; position: absolute; top: -5px; bottom: 0; width: 26px; background: inherit; border-top: 5px solid var(--lime); }
   #center::before { left: -25px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
   #center::after { right: -25px; clip-path: polygon(0 0, 0 100%, 100% 100%); }
-  #round { font-size: 34px; font-weight: 900; line-height: 40px; max-width: 300px; text-overflow: ellipsis; overflow: hidden; }
+  #round { font-size: 34px; font-weight: 900; line-height: 40px; width: 340px; text-align: center; overflow: hidden; }
   #round.reset { color: var(--lime); }
   #bestof { font-size: 20px; letter-spacing: 6px; color: var(--muted); line-height: 26px; }
   #logo { position: absolute; top: -34px; left: 50%; margin-left: -30px; width: 60px; height: 60px; z-index: 4; }
@@ -91,11 +91,12 @@
       if (!prev || !PP.same(side(p), side(prev.players[i]))) PP.slideIn($('side' + n), i === 0 ? 'left' : 'right', 0);
     });
     PP.setText($('round'), PP.roundLabel(s) || ' ');
+    PP.fitText($('round'), 336, 34, 16);
     $('round').classList.toggle('reset', !!(s.grandFinals.on && s.grandFinals.reset));
     PP.setText($('bestof'), 'Best of ' + s.bestOf);
     if (!prev || PP.roundLabel(prev) !== PP.roundLabel(s) || prev.bestOf !== s.bestOf) PP.slideIn($('center'), 'down', 100);
   });
-  document.fonts.ready.then(() => { fit(1); fit(2); });
+  document.fonts.ready.then(() => { fit(1); fit(2); PP.fitText($('round'), 336, 34, 16); });
 </script>
 </body>
 </html>

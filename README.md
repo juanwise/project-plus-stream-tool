@@ -6,7 +6,7 @@ Green theme with plus-sign patterns. Windows program (Electron), nothing to inst
 ## Using it
 
 1. Download `ProjectPlusStreamTool_<version>_windows.zip` from the Releases page, unzip it and run `ProjectPlusStreamTool.exe`.
-2. In OBS add a **Browser** source for each overlay you want (size **1920 x 1080**). The addresses are on the panel's *Overlays* tab:
+2. In OBS add a **Browser** source for each overlay you want (size **1920 x 1080** recommended; any other size also works because the overlay scales to fit the source). The addresses are on the panel's *Overlays* tab:
 
    | Overlay | Address |
    |---|---|

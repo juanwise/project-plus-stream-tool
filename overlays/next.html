@@ -31,7 +31,7 @@
   #vsmark { position: relative; width: 120px; height: 120px; }
   #vsmark svg { position: absolute; inset: 0; width: 120px; height: 120px; }
   #vsmark span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; font-style: italic; color: #03150a; padding-bottom: 3px; }
-  #round { font-size: 28px; font-weight: 900; margin-top: 0; max-width: 330px; overflow: hidden; text-overflow: ellipsis; }
+  #round { font-size: 28px; font-weight: 900; margin-top: 0; width: 330px; text-align: center; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -75,9 +75,10 @@
       if (!prev || !PP.same(key(p), key(i ? prev.next.p2 : prev.next.p1))) PP.slideIn($('side' + n), i ? 'right' : 'left', 100);
     });
     PP.setText($('round'), s.next.round);
+    PP.fitText($('round'), 326, 28, 14);
     if (!prev || prev.next.round !== s.next.round) { PP.slideIn($('center'), 'up', 0); PP.slideIn(document.querySelector('.tab'), 'down', 200); }
   });
-  document.fonts.ready.then(() => { fit(1); fit(2); });
+  document.fonts.ready.then(() => { fit(1); fit(2); PP.fitText($('round'), 326, 28, 14); });
 </script>
 </body>
 </html>

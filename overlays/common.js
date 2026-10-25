@@ -47,6 +47,30 @@
     },
   };
 
+  // The overlays are drawn on a 1920x1080 stage. Scale it to fit whatever size the OBS browser source has
+  // (default 800x600, or any canvas), so nothing is cut off.
+  function fitStage() {
+    const w = window.innerWidth || 1920, h = window.innerHeight || 1080;
+    const k = Math.min(w / 1920, h / 1080);
+    const b = document.body;
+    b.style.transformOrigin = '0 0';
+    b.style.transform = k === 1 ? '' : `translate(${(w - 1920 * k) / 2}px, ${(h - 1080 * k) / 2}px) scale(${k})`;
+  }
+  document.documentElement.style.cssText = 'overflow:hidden;background:transparent';
+  window.addEventListener('resize', fitStage);
+  document.addEventListener('DOMContentLoaded', fitStage);
+  fitStage();
+
+  // Shrinks a single-line text until it fits maxWidth (px), never below minPx.
+  PP.fitText = function (el, maxWidth, basePx, minPx) {
+    const prevWidth = el.style.width;
+    el.style.width = 'max-content';          // measure the text itself, not the box it sits in
+    el.style.fontSize = basePx + 'px';
+    let size = basePx;
+    while (el.offsetWidth > maxWidth && size > minPx) { size -= 1; el.style.fontSize = size + 'px'; }
+    el.style.width = prevWidth;
+  };
+
   function connect() {
     const es = new EventSource('/events');
     es.addEventListener('state', (e) => {
