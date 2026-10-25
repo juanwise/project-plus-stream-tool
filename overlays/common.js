@@ -8,6 +8,8 @@
     art: (code, alt) => (code ? `/art/${code}/${alt || 1}` : ''),
     icon: (code, alt) => (code ? `/icon/${code}/${alt || 1}` : ''),
     characters: [],
+    page: (location.pathname.split('/').pop() || '').replace('.html', ''),
+    logoSrc: '',
     charName(code) { const c = this.characters.find((x) => x.code === code); return c ? c.name : ''; },
     same: (a, b) => JSON.stringify(a) === JSON.stringify(b),
 
@@ -38,11 +40,12 @@
       el.style.visibility = 'visible';
       if (el.getAttribute('src') !== src) el.setAttribute('src', src);
     },
-    // "Team | Name" style label
+    // the logo chosen on the panel: an <img> that is shown only when there is one
+    setLogo(el) { if (el) this.setImg(el, this.logoSrc); return !!this.logoSrc; },
     plusSvg(size, extra) {
       return `<svg class="plus-mark" width="${size}" height="${size}" viewBox="0 0 100 100" ${extra || ''}>
-        <defs><linearGradient id="ppg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14e0b4"/><stop offset="1" stop-color="#3cff4a"/></linearGradient></defs>
-        <path d="M34 4h32v30h30v32H66v30H34V66H4V34h30z" fill="url(#ppg)" stroke="#031008" stroke-width="7" stroke-linejoin="round"/>
+        <defs><linearGradient id="ppg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--plus1)"/><stop offset="1" style="stop-color:var(--plus2)"/></linearGradient></defs>
+        <path d="M34 4h32v30h30v32H66v30H34V66H4V34h30z" fill="url(#ppg)" style="stroke:var(--ink)" stroke-width="7" stroke-linejoin="round"/>
         <path d="M38 12h24v30h30v16H62v30H38V58H8V42h30z" fill="none" stroke="#e9fff3" stroke-opacity=".55" stroke-width="2" stroke-linejoin="round"/></svg>`;
     },
   };
@@ -75,6 +78,8 @@
     const es = new EventSource('/events');
     es.addEventListener('state', (e) => {
       const next = JSON.parse(e.data);
+      PP.logoSrc = next.logo ? '/logo?v=' + next.logo : '';
+      if (window.PP_applyTheme) window.PP_applyTheme((next.themes || {})[PP.page]);
       const prev = current;
       current = next;
       listeners.forEach((fn) => fn(next, prev));

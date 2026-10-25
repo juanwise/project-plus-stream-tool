@@ -9,6 +9,8 @@
 //   GET  /flag/<cc>       country flag png: bundled assets/flags, else cached in <data>/flags, else downloaded once from flagcdn
 //   GET/POST /settings    Start.gg API token (kept in <data>/settings.json, never sent to the overlays)
 //   POST /import/startgg  {link} -> top 8 of a Start.gg event
+//   POST /import/bracket  {link} -> reads the bracket of a Start.gg event into the state (the bracket overlay)
+//   GET/POST/DELETE /logo the logo shown on every overlay (POST: the image file as the request body)
 const http = require('http');
 const fs = require('fs');
 const https = require('https');
@@ -33,6 +35,10 @@ function defaultState() {
     mirrorPlayer2: true,
     players: [emptyPlayer(), emptyPlayer()],
     top8: Array.from({ length: 8 }, emptyEntry),
+    bracketDepth: 8,
+    themes: {},
+    logo: 0,
+    bracket: null,
   };
 }
 
@@ -45,6 +51,12 @@ function normalize(input) {
   s.players = [0, 1].map((i) => Object.assign(emptyPlayer(), (s.players || [])[i]));
   s.top8 = Array.from({ length: 8 }, (_, i) => Object.assign(emptyEntry(), (s.top8 || [])[i]));
   delete s.next;   // the old "up next" overlay no longer exists
+  s.bestOf = Number(s.bestOf) === 5 ? 5 : 3;
+  s.bracketDepth = Number(s.bracketDepth) === 4 ? 4 : 8;
+  s.themes = Object.assign({}, s.themes && typeof s.themes === 'object' ? s.themes : {});
+  for (const k of Object.keys(s.themes)) if (!/^[a-z]{2,12}$/.test(String(s.themes[k]))) delete s.themes[k];
+  s.logo = Number(s.logo) > 0 ? Number(s.logo) : 0;
+  if (!s.bracket || typeof s.bracket !== 'object') s.bracket = null;
   s.players.forEach((p) => { p.score = Math.max(0, parseInt(p.score, 10) || 0); p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
   s.top8.forEach((p) => { p.country = /^[a-z]{2}$/i.test(p.country || '') ? p.country.toLowerCase() : ''; p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
   return s;
@@ -136,7 +148,7 @@ function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-t
       let body = '';
       req.on('data', (c) => { body += c; if (body.length > 1e6) req.destroy(); });
       req.on('end', () => {
-        try { state = normalize(JSON.parse(body)); } catch (e) { res.writeHead(400); return res.end('bad json'); }
+        try { const keep = { bracket: state.bracket, logo: state.logo }; state = Object.assign(normalize(JSON.parse(body)), keep); } catch (e) { res.writeHead(400); return res.end('bad json'); }   // bracket and logo are changed only by their own buttons
         save(); broadcast();
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(state));
@@ -175,6 +187,36 @@ function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-t
           json(res, 200, result);
         } catch (e) { json(res, 400, { error: e.message }); }
       });
+    }
+    if (p === '/import/bracket' && req.method === 'POST') {
+      return readBody(req, async (b) => {
+        if (!b) return json(res, 400, { error: 'bad json' });
+        try {
+          state.bracket = await startgg.importBracket(b.link, readSettings().startggToken, fetchImpl);
+          save(); broadcast(); json(res, 200, { bracket: state.bracket });
+        } catch (e) { json(res, 400, { error: e.message }); }
+      });
+    }
+    if (p === '/logo' && req.method === 'GET') {
+      const f = ['.png', '.jpg', '.webp', '.gif', '.svg'].map((e) => path.join(dataDir, 'logo' + e)).find((x) => fs.existsSync(x));
+      return f ? sendFile(res, f, false) : (res.writeHead(404), res.end('no logo'));
+    }
+    if (p === '/logo' && req.method === 'DELETE') {
+      for (const e of ['.png', '.jpg', '.webp', '.gif', '.svg']) { try { fs.unlinkSync(path.join(dataDir, 'logo' + e)); } catch (x) { /* none */ } }
+      state.logo = 0; save(); broadcast(); return json(res, 200, { logo: 0 });
+    }
+    if (p === '/logo' && req.method === 'POST') {
+      const ext = { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif', 'image/svg+xml': '.svg' }[String(req.headers['content-type'] || '').split(';')[0]];
+      if (!ext) return json(res, 400, { error: 'The logo must be a PNG, JPG, WebP, GIF or SVG image.' });
+      const chunks = []; let size = 0, tooBig = false;
+      req.on('data', (c) => { size += c.length; if (size > 8e6) tooBig = true; else chunks.push(c); });
+      req.on('end', () => {
+        if (tooBig || !size) return json(res, 400, { error: tooBig ? 'The logo is bigger than 8 MB.' : 'Empty file.' });
+        for (const e of ['.png', '.jpg', '.webp', '.gif', '.svg']) { try { fs.unlinkSync(path.join(dataDir, 'logo' + e)); } catch (x) { /* none */ } }
+        try { fs.writeFileSync(path.join(dataDir, 'logo' + ext), Buffer.concat(chunks)); } catch (x) { return json(res, 500, { error: 'Could not save the logo.' }); }
+        state.logo = Date.now(); save(); broadcast(); json(res, 200, { logo: state.logo });
+      });
+      return;
     }
     if (p === '/characters') return sendFile(res, path.join(root, 'assets', 'characters.json'), false);
     let m;

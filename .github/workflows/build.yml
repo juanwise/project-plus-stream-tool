@@ -19,7 +19,10 @@ jobs:
           node-version: 22
       - run: npm install --no-audit --no-fund
       - name: Check the server and overlays load
-        run: node tools/selfTest.js
+        run: |
+          node tools/selfTest.js
+          node tools/mockStartgg.js
+          node tools/mockBracket.js
       - run: npm run dist
       - name: Name the zip after the release
         id: zip

@@ -13,6 +13,7 @@
   <nav>
     <button class="tab active" data-tab="match">Match</button>
     <button class="tab" data-tab="top8">Top 8</button>
+    <button class="tab" data-tab="bracket">Bracket</button>
     <button class="tab" data-tab="overlays">Overlays</button>
   </nav>
   <div class="actions">
@@ -60,6 +61,16 @@
     <div class="card"><div class="rows" id="top8rows"></div></div>
   </section>
 
+  <!-- BRACKET -->
+  <section id="tab-bracket" class="tabpane">
+    <div class="card">
+      <h3>Bracket from Start.gg</h3>
+      <div class="importrow"><input id="brLink" type="text" placeholder="https://www.start.gg/tournament/.../event/..."><button id="brUpdate" class="primary">Update bracket</button></div>
+      <div class="field"><span>Show</span><div class="seg" id="brDepth"><button data-v="8">Top 8</button><button data-v="4">Top 4</button></div></div>
+      <p class="hint" id="brMsg">Paste the event link and press <b>Update bracket</b>. The overlay changes only when you press the button, so press it again after each set. Uses the API token from the Top 8 tab.</p>
+    </div>
+  </section>
+
   <!-- OVERLAYS -->
   <section id="tab-overlays" class="tabpane">
     <div class="card">
@@ -69,6 +80,13 @@
       <label class="check"><input id="mirror" type="checkbox"> Mirror player 2's art (faces the centre)</label>
     </div>
     <div class="card">
+      <h3>Logo</h3>
+      <p>Your logo appears on every overlay exactly as it is (no theme colours): centred on the VS screen and the scoreboard, on both sides of the title of Top 8 and Bracket, and on the waiting screen. PNG with a transparent background works best.</p>
+      <div class="logorow"><div class="logobox"><img id="logoPrev" alt="" hidden></div>
+        <button id="logoPick">Import logo</button><button id="logoRemove">Remove logo</button><input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden></div>
+      <p class="hint" id="logoMsg"></p>
+    </div>
+    <div class="card">
       <h3>Bigger or custom art</h3>
       <p>The art that comes with the tool is 384 x 480. To use your own, put images in this folder (they win over the bundled ones):</p>
       <p><code id="artDir">stream-tool-data/custom-art/&lt;fighter&gt;/&lt;costume number&gt;.png</code></p>
@@ -76,6 +94,7 @@
     </div>
   </section>
 </main>
+<script src="/overlays/themes.js"></script>
 <script src="panel.js"></script>
 </body>
 </html>

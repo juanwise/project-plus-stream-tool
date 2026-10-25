@@ -4,12 +4,10 @@
 @font-face { font-family: "PPInter"; font-weight: 900; src: url("/assets/fonts/Inter-Black.otf"); }
 
 :root {
-  --ink: #031008;
-  --deep: #05361e;
-  --green: #0c9b55;
-  --bright: #1ee27a;
-  --lime: #8cff4f;
-  --mint: #c8ffe3;
+  /* default (green) values; themes.js overrides them */
+  --ink: #031008; --deep: #05361e; --mid: #07482a; --mid2: #0a6b3a; --card1: #0b8f4e; --card2: #03200f; --green: #0c9b55; --bright: #1ee27a;
+  --lime: #8cff4f; --acc2: #b6ff7a; --limepale: #e9ffd0; --mint: #c8ffe3; --bg1: #10b866; --bg2: #0a8a4b; --plus1: #14e0b4; --plus2: #3cff4a;
+  --ink-rgb: 3,16,8; --deep-rgb: 5,54,30; --lime-rgb: 140,255,79; --mint-rgb: 200,255,227;
   --text: #ffffff;
   --muted: #a9e8c6;
   /* a plus sign, used as the repeating pattern */
@@ -31,7 +29,7 @@ body {
   position: absolute; inset: 0; z-index: 0;
   background:
     var(--plus-pattern),
-    radial-gradient(ellipse at 50% 40%, #10b866 0%, #0a8a4b 38%, #05361e 78%, #021409 100%);
+    radial-gradient(ellipse at 50% 40%, var(--bg1) 0%, var(--bg2) 38%, var(--deep) 78%, var(--ink) 100%);
   background-size: 160px 160px, auto;
   animation: drift 40s linear infinite;
 }

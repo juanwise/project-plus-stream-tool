@@ -124,4 +124,57 @@ async function importTop8(link, token, fighters, fetchImpl) {
   return { entries, tournament: (ev.tournament && ev.tournament.name) || '', eventName: ev.name || '', notes };
 }
 
-module.exports = { parseSlug, countryCode, characterCode, importTop8, normalize };
+// ---------- bracket ----------
+const PHASES = `query Phases($slug: String!) {
+  event(slug: $slug) { name tournament { name } phases { id name phaseOrder bracketType } } }`;
+const PHASE_SETS = `query PhaseSets($id: ID!, $page: Int!) {
+  phase(id: $id) { sets(page: $page, perPage: 40, sortType: STANDARD) { pageInfo { totalPages }
+    nodes { id round fullRoundText winnerId slots { entrant { id name participants { gamerTag prefix } } standing { placement stats { score { value } } } } } } } }`;
+
+function slotOf(slot, winnerId) {
+  const e = slot && slot.entrant;
+  if (!e) return { name: '', team: '', score: null, winner: false };
+  const p = (e.participants || [])[0] || {};
+  const v = slot.standing && slot.standing.stats && slot.standing.stats.score ? slot.standing.stats.score.value : null;
+  return { name: p.gamerTag || e.name || '', team: p.prefix || '', score: v == null ? null : v, winner: winnerId != null && String(winnerId) === String(e.id) };
+}
+
+// Keeps the end of the bracket only: the last winners rounds, the last losers rounds and the grand final(s).
+function buildBracket(nodes, keepWinners = 4, keepLosers = 6) {
+  const sets = nodes.filter((n) => n && n.slots && n.slots.length >= 2).map((n) => ({
+    id: String(n.id), round: n.round, text: n.fullRoundText || '', a: slotOf(n.slots[0], n.winnerId), b: slotOf(n.slots[1], n.winnerId) }));
+  const isGF = (x) => /grand\s*final/i.test(x.text);
+  const gf = sets.filter(isGF).sort((x, y) => x.round - y.round);
+  const group = (list) => {
+    const by = new Map();
+    list.forEach((x) => { if (!by.has(x.round)) by.set(x.round, []); by.get(x.round).push(x); });
+    return [...by.entries()].map(([round, ss]) => ({ round, text: ss[0].text, sets: ss }));
+  };
+  const winners = group(sets.filter((x) => !isGF(x) && x.round > 0)).sort((x, y) => x.round - y.round).slice(-keepWinners);
+  const losers = group(sets.filter((x) => !isGF(x) && x.round < 0)).sort((x, y) => y.round - x.round).slice(-keepLosers);   // -1, -2, ... (earliest first)
+  return { winners, losers, gf };
+}
+
+async function importBracket(link, token, fetchImpl) {
+  const slug = parseSlug(link);
+  if (!slug) throw new Error('That does not look like a Start.gg event link. It should look like https://www.start.gg/tournament/.../event/...');
+  if (!token) throw new Error('Add your Start.gg API token first (Top 8 tab).');
+  const ev = (await gql(PHASES, { slug }, token, fetchImpl) || {}).event;
+  if (!ev) throw new Error('Start.gg could not find that event.');
+  const elim = (ev.phases || []).filter((p) => /ELIMINATION/.test(p.bracketType || '')).sort((a, b) => (b.phaseOrder || 0) - (a.phaseOrder || 0));
+  if (!elim.length) throw new Error('This event has no bracket phase yet.');
+  const phase = elim.find((p) => p.bracketType === 'DOUBLE_ELIMINATION') || elim[0];
+  const nodes = [];
+  for (let page = 1, pages = 1; page <= pages && page <= 30; page++) {
+    const d = await gql(PHASE_SETS, { id: phase.id, page }, token, fetchImpl);
+    const conn = (d && d.phase && d.phase.sets) || {};
+    pages = (conn.pageInfo && conn.pageInfo.totalPages) || 1;
+    nodes.push(...(conn.nodes || []));
+  }
+  if (!nodes.length) throw new Error('The bracket has no sets yet.');
+  const b = buildBracket(nodes);
+  if (!b.winners.length && !b.losers.length && !b.gf.length) throw new Error('Could not read the bracket from Start.gg.');
+  return Object.assign(b, { link: String(link).trim(), tournament: (ev.tournament && ev.tournament.name) || '', event: ev.name || '', phase: phase.name || '', updated: new Date().toISOString() });
+}
+
+module.exports = { parseSlug, countryCode, characterCode, importTop8, importBracket, buildBracket, normalize };

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Plus Bracket</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  #title { position: absolute; left: 0; width: 1920px; top: 24px; height: 140px; display: flex; align-items: center; justify-content: center; gap: 28px; z-index: 2; }
+  #title h1 { margin: 0; font-size: 96px; font-weight: 900; font-style: italic; line-height: 100px; letter-spacing: -3px; text-shadow: 0 5px 0 rgba(0,0,0,.55); }
+  #title .ul { height: 120px; max-width: 220px; width: auto; object-fit: contain; }
+  #tournament { font-size: 32px; letter-spacing: 6px; color: var(--mint); margin-top: 4px; text-align: center; height: 40px; line-height: 40px; }
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 2; }
+  .card { position: absolute; width: 236px; overflow: hidden; background: linear-gradient(170deg, var(--card1), var(--card2) 85%);
+    border-top: 4px solid var(--lime); box-shadow: 0 6px 14px rgba(0,0,0,.4); }
+  .card::before { content: ""; position: absolute; inset: 0; background: var(--plus-pattern); background-size: 80px 80px; opacity: .7; }
+  .card > * { position: relative; }
+  .strip { display: flex; align-items: center; justify-content: center; background: rgba(var(--ink-rgb), .82); color: var(--lime); letter-spacing: 2px; white-space: nowrap; overflow: hidden; }
+  .prow { display: flex; align-items: stretch; background: linear-gradient(90deg, rgba(var(--ink-rgb), .55), rgba(var(--deep-rgb), .35)); border-top: 1px solid rgba(var(--mint-rgb), .12); }
+  .mir .prow { flex-direction: row-reverse; background: linear-gradient(270deg, rgba(var(--ink-rgb), .55), rgba(var(--deep-rgb), .35)); }
+  .nm { flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 12px; font-weight: 900; letter-spacing: -.3px; overflow: hidden; }
+  .mir .nm { justify-content: flex-end; text-align: right; }
+  .ctr .nm { justify-content: center; text-align: center; }
+  .nm .line { display: inline-flex; align-items: center; white-space: nowrap; }
+  .nm .t { color: var(--lime); margin-right: .45em; font-weight: 800; font-size: .62em; }
+  .mir .nm .t { margin-right: 0; margin-left: .45em; order: 2; }
+  .sc { width: 56px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--ink); background: var(--green); }
+  .prow.win .sc { background: linear-gradient(160deg, var(--acc2), var(--bright)); }
+  .prow.win .nm { color: #fff; }
+  .prow.lose { opacity: .55; }
+  .prow.tbd .nm { color: var(--muted); font-weight: 800; }
+  .scoreline { display: flex; align-items: center; justify-content: center; gap: 16px; font-weight: 900; color: var(--lime); background: rgba(var(--deep-rgb), .75); }
+  .scoreline b { color: #fff; min-width: 1.2em; text-align: center; }
+  .label { position: absolute; height: 34px; line-height: 34px; text-align: center; font-size: 24px; letter-spacing: 8px; color: var(--mint); border-bottom: 3px solid var(--lime); }
+  #empty { position: absolute; left: 0; width: 1920px; top: 470px; text-align: center; font-size: 44px; letter-spacing: 6px; color: var(--mint); display: none; z-index: 2; }
+</style>
+</head>
+<body>
+  <div class="pp-bg"></div>
+  <div id="title"><div id="titlelogo"></div><div><h1 style="text-align:center">Bracket</h1><div id="tournament"></div></div><div id="titlelogo2"></div></div>
+  <div id="stage"></div>
+  <div id="empty">Press "Update bracket" on the panel</div>
+
+<script src="themes.js"></script>
+<script src="common.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const CW = 236, GAP = 22, CX = 960 - CW / 2;          // card width, gap, left edge of the centre column
+  const colLeft = (side, k) => (side === 'L' ? CX - k * (CW + GAP) : CX + k * (CW + GAP));   // the right side is the exact mirror of the left
+  const TOP = 205, BOTTOM = 1040;
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const shortRound = (t) => String(t || '').replace(/^Winners\s+/i, 'W ').replace(/^Losers\s+/i, 'L ').replace(/Quarter-?Final/i, 'Quarters').replace(/Semi-?Final/i, 'Semis').replace(/Final(?!s)/i, 'Finals');
+  const scoreText = (v) => (v == null ? '' : v < 0 ? 'DQ' : String(v));
+
+  function playerRow(p, done, h) {
+    const cls = ['prow', !p.name ? 'tbd' : '', done && p.winner ? 'win' : '', done && p.name && !p.winner ? 'lose' : ''].join(' ');
+    const fs = Math.round(h * .5);
+    return `<div class="prow ${cls}" style="height:${h}px;font-size:${fs}px"><div class="nm"><span class="line">${p.team ? `<span class="t">${esc(p.team)}</span>` : ''}<span class="n">${esc(p.name || 'TBD')}</span></span></div><div class="sc" style="font-size:${Math.round(h * .55)}px">${esc(scoreText(p.score))}</div></div>`;
+  }
+  function sideCard(set, side, x, y, H) {
+    const sh = Math.round(H * .26), rh = Math.round((H - sh - 4) / 2), done = set.a.winner || set.b.winner;
+    return `<div class="card ${side === 'R' ? 'mir' : ''}" style="left:${x}px;top:${y}px;height:${H}px" data-side="${side}">
+      <div class="strip" style="height:${sh}px;font-size:${Math.round(sh * .55)}px">${esc(shortRound(set.text))}</div>${playerRow(set.a, done, rh)}${playerRow(set.b, done, rh)}</div>`;
+  }
+  function centerCard(set, x, y, H, text) {
+    const sh = Math.round(H * .2), nh = Math.round(H * .27), ch = H - sh - 2 * nh - 4, done = set.a.winner || set.b.winner;
+    const nm = (p) => `<div class="prow ctr ${!p.name ? 'tbd' : ''} ${done && p.winner ? 'win' : ''} ${done && p.name && !p.winner ? 'lose' : ''}" style="height:${nh}px;font-size:${Math.round(nh * .52)}px"><div class="nm" style="justify-content:center"><span class="line">${p.team ? `<span class="t">${esc(p.team)}</span>` : ''}<span class="n">${esc(p.name || 'TBD')}</span></span></div></div>`;
+    const sa = scoreText(set.a.score), sb = scoreText(set.b.score);
+    return `<div class="card ctr" style="left:${x}px;top:${y}px;height:${H}px" data-side="C">
+      <div class="strip" style="height:${sh}px;font-size:${Math.round(sh * .56)}px">${esc(text || shortRound(set.text))}</div>${nm(set.a)}
+      <div class="scoreline" style="height:${ch}px;font-size:${Math.round(ch * .62)}px">${sa === '' && sb === '' ? '<span>VS</span>' : `<b>${esc(sa) || '-'}</b>–<b>${esc(sb) || '-'}</b>`}</div>${nm(set.b)}</div>`;
+  }
+
+  // Splits a round into the sets drawn on the left, the right and (a lone set) in the centre.
+  function split(round) {
+    const n = round.sets.length, half = Math.floor(n / 2);
+    return { left: round.sets.slice(0, half), right: round.sets.slice(n - half), mid: n % 2 ? [round.sets[half]] : [] };
+  }
+  function sectionPlan(rounds) {
+    const parts = rounds.map(split), sided = parts.filter((p) => p.left.length), singles = parts.flatMap((p) => p.mid);
+    const cols = sided.slice(-3).map((p, i, arr) => ({ part: p, k: arr.length - i }));      // outermost first; k = distance from the centre column
+    return { cols, singles, rows: Math.max(1, ...cols.map((c) => c.part.left.length)) };
+  }
+
+  function draw(s) {
+    const b = s.bracket, stage = $('stage');
+    $('empty').style.display = b ? 'none' : 'block';
+    if (!b) { stage.innerHTML = ''; return; }
+    const wn = s.bracketDepth === 4 ? 2 : 3, ln = s.bracketDepth === 4 ? 2 : 4;
+    const W = sectionPlan((b.winners || []).slice(-wn)), L = sectionPlan((b.losers || []).slice(-ln));
+    const gfSets = b.gf || [];
+    const gf = gfSets.slice().reverse().find((x) => x.a.name && x.b.name) || gfSets[0];
+    const center = [...W.singles.map((x) => ({ set: x })), ...(gf ? [{ set: gf, text: /reset/i.test(gf.text) ? 'Grand Final Reset' : 'Grand Final', gf: true }] : []), ...L.singles.slice().reverse().map((x) => ({ set: x }))];
+    const labelH = 44, usable = BOTTOM - TOP;
+    // side blocks share the height in proportion to their rows; the centre column is spread over the whole height
+    const rowsTotal = W.rows + L.rows, hW = (usable - 2 * labelH) * W.rows / rowsTotal, hL = (usable - 2 * labelH) * L.rows / rowsTotal;
+    const cellW = hW / W.rows, cellL = hL / L.rows;
+    const HS = Math.max(96, Math.min(138, Math.min(cellW, cellL) - 26));
+    let html = '';
+    const place = (plan, y0, cell, side) => plan.cols.forEach(({ part, k }) => {
+      const list = side === 'L' ? part.left : part.right, per = list.length, span = cell * plan.rows;
+      list.forEach((set, i) => { const cy = y0 + (i + .5) * span / per; html += sideCard(set, side, colLeft(side, k), Math.round(cy - HS / 2), Math.round(HS)); });
+    });
+    const yW = TOP + labelH, yL = TOP + labelH + hW + labelH;
+    ['L', 'R'].forEach((side) => { place(W, yW, cellW, side); place(L, yL, cellL, side); });
+    // section labels, over the middle of each side's columns (the same text and size on both sides)
+    const labelBox = (plan, side) => { const k = Math.max(1, ...plan.cols.map((c) => c.k)); const l = colLeft(side, side === 'L' ? k : 1), r = colLeft(side, side === 'L' ? 1 : k) + CW; return [l, r - l]; };
+    [[W, yW - labelH + 6, 'Winners'], [L, yL - labelH + 6, 'Losers']].forEach(([plan, y, text]) => {
+      if (!plan.cols.length) return;
+      ['L', 'R'].forEach((side) => { const [l, w] = labelBox(plan, side); html += `<div class="label" style="left:${l}px;width:${w}px;top:${y}px">${text}</div>`; });
+    });
+    if (center.length) {
+      const pitch = usable / center.length, HC = Math.max(112, Math.min(176, pitch - 24));
+      center.forEach((c, i) => { html += centerCard(c.set, CX, Math.round(TOP + (i + .5) * pitch - HC / 2), Math.round(HC), c.text); });
+    }
+    stage.innerHTML = html;
+    stage.querySelectorAll('.card').forEach((c) => c.querySelectorAll('.nm').forEach((nm) => {   // shrink names that do not fit
+      const line = nm.firstElementChild, avail = nm.clientWidth - 24; let fs = parseFloat(nm.parentElement.style.fontSize);
+      while (line.scrollWidth > avail && fs > 11) { fs -= 1; nm.parentElement.style.fontSize = fs + 'px'; }
+    }));
+  }
+
+  let lastKey = '';
+  PP.onState((s, prev) => {
+    ['titlelogo', 'titlelogo2'].forEach((id) => {
+      const want = PP.logoSrc ? 'logo:' + PP.logoSrc : 'plus', el = $(id);
+      if (el.dataset.kind !== want) { el.dataset.kind = want; el.innerHTML = PP.logoSrc ? `<img class="ul" src="${PP.logoSrc}" alt="">` : PP.plusSvg(120); }
+    });
+    PP.setText($('tournament'), s.tournament || (s.bracket && s.bracket.tournament) || ' ');
+    const key = JSON.stringify([s.bracket, s.bracketDepth]);
+    if (key === lastKey) return;
+    lastKey = key; draw(s);
+    document.querySelectorAll('#stage .card').forEach((c, i) => PP.slideIn(c, c.dataset.side === 'L' ? 'left' : c.dataset.side === 'R' ? 'right' : 'up', 40 + i * 25));
+  });
+  document.fonts.ready.then(() => { if (window.__s) draw(window.__s); });
+  PP.onState((s) => { window.__s = s; });
+</script>
+</body>
+</html>

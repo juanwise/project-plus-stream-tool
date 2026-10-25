@@ -18,6 +18,7 @@
     } catch (e) { return []; }
   })();
 
+  const OVERLAYS = [['VS screen', 'vs'], ['Scoreboard', 'scoreboard'], ['Top 8', 'top8'], ['Bracket', 'bracket'], ['Waiting for next game', 'waiting']];
   let chars = [], live = null, draft = null;
 
   const get = (o, path) => path.split('.').reduce((v, k) => (v == null ? v : v[k]), o);
@@ -32,6 +33,7 @@
     try {
       const r = await fetch('/state', { method: 'POST', body: JSON.stringify(state) });
       live = await r.json();
+      draft.bracket = live.bracket; draft.logo = live.logo;
       status(true);
     } catch (e) { status(false); }
     refreshDirty();
@@ -78,8 +80,9 @@
     $('#player0').innerHTML = playerCard(0);
     $('#player1').innerHTML = playerCard(1);
     $('#top8rows').innerHTML = draft.top8.map((_, i) => entryRow(`top8.${i}`, i + 1)).join('');
-    $('#urls').innerHTML = [['VS screen', 'vs'], ['Scoreboard', 'scoreboard'], ['Top 8', 'top8'], ['Waiting for next game', 'waiting']].map(([n, f]) =>
-      `<div class="url"><b>${n}</b><code>${location.origin}/overlays/${f}.html</code><button data-copy="${location.origin}/overlays/${f}.html">Copy</button><button data-open="/overlays/${f}.html">Open</button></div>`).join('');
+    $('#urls').innerHTML = OVERLAYS.map(([n, f]) =>
+      `<div class="urlrow"><div class="url"><b>${n}</b><code>${location.origin}/overlays/${f}.html</code><button data-copy="${location.origin}/overlays/${f}.html">Copy</button><button data-open="/overlays/${f}.html">Open</button></div>
+      <div class="swatches"><small>Theme</small>${(window.PP_THEMES || []).map((t) => `<button class="sw" data-theme="${t.id}" data-overlay="${f}" title="${t.name}" style="background:linear-gradient(135deg,${t.vars.bright} 0 50%,${t.vars.lime} 50% 100%)"></button>`).join('')}</div></div>`).join('');
     const dd = new URLSearchParams(location.search).get('dataDir');
     if (dd) $('#artDir').textContent = dd.replace(/[\\/]+$/, '') + '/custom-art/<fighter>/<costume number>.png';
   }
@@ -122,6 +125,10 @@
     $('#gfReset').textContent = draft.grandFinals.reset ? 'Undo bracket reset' : 'Bracket reset';
     $('#gfHint').hidden = !draft.grandFinals.on;
     $('#mirror').checked = !!draft.mirrorPlayer2;
+    $$('.sw').forEach((b) => b.classList.toggle('on', ((draft.themes || {})[b.dataset.overlay] || 'green') === b.dataset.theme));
+    $$('#brDepth button').forEach((b) => b.classList.toggle('on', Number(b.dataset.v) === draft.bracketDepth));
+    const lp = $('#logoPrev'); lp.hidden = !live.logo; if (live.logo) { const src = '/logo?v=' + live.logo; if (lp.getAttribute('src') !== src) lp.src = src; }
+    if (document.activeElement !== $('#brLink') && !$('#brLink').value && live.bracket) $('#brLink').value = live.bracket.link || '';
     refreshDirty();
   }
 
@@ -146,6 +153,10 @@
       set(draft, `players.${t.dataset.pick}.alt`, Number(t.dataset.n)); syncControls();
     } else if (t.closest('#bestOf')) {
       applyNow((s) => { s.bestOf = Number(t.dataset.v); });
+    } else if (t.closest('#brDepth')) {
+      applyNow((s) => { s.bracketDepth = Number(t.dataset.v); });
+    } else if (t.dataset.theme) {
+      applyNow((s) => { s.themes = s.themes || {}; s.themes[t.dataset.overlay] = t.dataset.theme; });
     } else if (t.dataset.copy) {
       (navigator.clipboard ? navigator.clipboard.writeText(t.dataset.copy) : Promise.reject()).then(() => { t.textContent = 'Copied'; setTimeout(() => (t.textContent = 'Copy'), 1200); }).catch(() => {});
     } else if (t.dataset.open) {
@@ -165,6 +176,32 @@
     draft.players.forEach((p) => Object.assign(p, { name: '', team: '', character: '', alt: 1 }));
     syncControls();
   });
+  // ---------- bracket and logo ----------
+  const brMsg = (t, bad) => { const m = $('#brMsg'); m.textContent = t; m.style.color = bad ? '#ff9b8a' : ''; };
+  $('#brUpdate').addEventListener('click', async () => {
+    brMsg('Asking Start.gg...'); $('#brUpdate').disabled = true;
+    try {
+      const r = await fetch('/import/bracket', { method: 'POST', body: JSON.stringify({ link: $('#brLink').value }) });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Update failed');
+      const b = data.bracket;
+      brMsg(`Bracket updated at ${new Date(b.updated).toLocaleTimeString()} (${b.event || 'event'}, ${b.phase || 'bracket'}).`);
+    } catch (e) { brMsg(e.message, true); }
+    $('#brUpdate').disabled = false;
+  });
+  const logoMsg = (t, bad) => { const m = $('#logoMsg'); m.textContent = t; m.style.color = bad ? '#ff9b8a' : ''; };
+  $('#logoPick').addEventListener('click', () => $('#logoFile').click());
+  $('#logoFile').addEventListener('change', async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const r = await fetch('/logo', { method: 'POST', headers: { 'Content-Type': f.type }, body: f });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Could not import the logo');
+      logoMsg('Logo imported. Refresh the browser sources in OBS if it does not show.');
+    } catch (err) { logoMsg(err.message, true); }
+    e.target.value = '';
+  });
+  $('#logoRemove').addEventListener('click', async () => { await fetch('/logo', { method: 'DELETE' }); logoMsg('Logo removed.'); });
+
   // ---------- Start.gg import ----------
   const sggMsg = (t, bad) => { const m = $('#sggMsg'); m.textContent = t; m.style.color = bad ? '#ff9b8a' : ''; };
   $('#sggSave').addEventListener('click', async () => {
@@ -204,7 +241,9 @@
       const incoming = JSON.parse(e.data);
       const wasDirty = isDirty();
       live = incoming;
-      if (!wasDirty) { draft = clone(live); syncControls(); }
+      draft.bracket = live.bracket; draft.logo = live.logo;   // changed by their own buttons, never part of "unsent changes"
+      if (!wasDirty) { draft = clone(live); }
+      syncControls();
       refreshDirty(); status(true);
     });
     es.onerror = () => status(false);

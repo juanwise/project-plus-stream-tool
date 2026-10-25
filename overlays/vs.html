@@ -27,16 +27,17 @@
 
   #center { position: absolute; left: 610px; width: 700px; top: 0; height: 230px; text-align: center; z-index: 6; }
   #center::before { content: ""; position: absolute; inset: 0; z-index: -1;
-    background: linear-gradient(180deg, rgba(3,16,8,.94), rgba(5,54,30,.9)); border-bottom: 6px solid var(--lime);
+    background: linear-gradient(180deg, rgba(var(--ink-rgb),.94), rgba(var(--deep-rgb),.9)); border-bottom: 6px solid var(--lime);
     clip-path: polygon(0 0, 100% 0, 94% 100%, 6% 100%); }
   #tournament { padding-top: 34px; font-size: 32px; letter-spacing: 6px; color: var(--mint); height: 70px; }
   #round { height: 74px; font-size: 62px; font-weight: 900; line-height: 74px; text-shadow: 0 3px 0 rgba(0,0,0,.6); }
   #round.reset { color: var(--lime); }
   #bestof { font-size: 26px; letter-spacing: 8px; color: var(--muted); height: 34px; line-height: 34px; }
+  #userlogo { position: absolute; left: 850px; top: 770px; width: 220px; height: 200px; object-fit: contain; z-index: 7; }
   #vs { position: absolute; left: 760px; top: 340px; width: 400px; height: 400px; z-index: 6; }
   #vs svg { position: absolute; inset: 0; width: 400px; height: 400px; }
   #vs span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 118px; font-weight: 900; font-style: italic;
-    color: #03150a; letter-spacing: -4px; padding-bottom: 8px; }
+    color: var(--ink); letter-spacing: -4px; padding-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -47,6 +48,7 @@
   <div id="art2" class="artbox"><img id="img2" alt=""></div>
 
   <div id="vs"><span>VS</span></div>
+  <img id="userlogo" alt="">
 
   <div id="center">
     <div id="tournament"></div>
@@ -57,6 +59,7 @@
   <div id="txt1" class="txt"><div class="row"><div class="line"><span id="team1" class="team"></span><span id="name1" class="name"></span></div></div><div id="char1" class="char"></div></div>
   <div id="txt2" class="txt"><div class="row"><div class="line"><span id="team2" class="team"></span><span id="name2" class="name"></span></div></div><div id="char2" class="char"></div></div>
 
+<script src="themes.js"></script>
 <script src="common.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
@@ -72,10 +75,10 @@
   const EDGE = [[930, 0], [790, 1080]];
   const parts = (pts, m) => (m ? mirror(pts) : pts);
   let svg = `<defs>
-    <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#031008" stop-opacity=".9"/><stop offset=".6" stop-color="#05361e" stop-opacity=".8"/><stop offset="1" stop-color="#0c9b55" stop-opacity=".55"/></linearGradient>
-    <linearGradient id="pg2" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#031008" stop-opacity=".9"/><stop offset=".6" stop-color="#05361e" stop-opacity=".8"/><stop offset="1" stop-color="#0c9b55" stop-opacity=".55"/></linearGradient>
-    <linearGradient id="pl1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#031008"/><stop offset=".6" stop-color="#08502c"/><stop offset="1" stop-color="#0c9b55"/></linearGradient>
-    <linearGradient id="pl2" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#031008"/><stop offset=".6" stop-color="#08502c"/><stop offset="1" stop-color="#0c9b55"/></linearGradient>
+    <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--ink)" stop-opacity=".9"/><stop offset=".6" style="stop-color:var(--deep)" stop-opacity=".8"/><stop offset="1" style="stop-color:var(--green)" stop-opacity=".55"/></linearGradient>
+    <linearGradient id="pg2" x1="1" y1="0" x2="0" y2="0"><stop offset="0" style="stop-color:var(--ink)" stop-opacity=".9"/><stop offset=".6" style="stop-color:var(--deep)" stop-opacity=".8"/><stop offset="1" style="stop-color:var(--green)" stop-opacity=".55"/></linearGradient>
+    <linearGradient id="pl1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--ink)"/><stop offset=".6" style="stop-color:var(--mid)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient>
+    <linearGradient id="pl2" x1="1" y1="0" x2="0" y2="0"><stop offset="0" style="stop-color:var(--ink)"/><stop offset=".6" style="stop-color:var(--mid)"/><stop offset="1" style="stop-color:var(--green)"/></linearGradient>
     <pattern id="plusPat" width="160" height="160" patternUnits="userSpaceOnUse"><g fill="#fff"><path opacity=".10" d="M68 40h24v28h28v24H92v28H68V92H40V68h28z"/></g></pattern>
     <filter id="glow" x="-20%" y="-5%" width="140%" height="110%"><feGaussianBlur stdDeviation="8"/></filter>
   </defs>`;
@@ -83,10 +86,10 @@
     const g = i + 1;
     svg += `<polygon points="${poly(parts(PANEL, m))}" fill="url(#pg${g})"/>
       <polygon points="${poly(parts(PANEL, m))}" fill="url(#plusPat)"/>
-      <polyline points="${poly(parts(EDGE, m))}" fill="none" stroke="#8cff4f" stroke-width="22" opacity=".55" filter="url(#glow)"/>
-      <polyline points="${poly(parts(EDGE, m))}" fill="none" stroke="#8cff4f" stroke-width="10"/>
+      <polyline points="${poly(parts(EDGE, m))}" fill="none" style="stroke:var(--lime)" stroke-width="22" opacity=".55" filter="url(#glow)"/>
+      <polyline points="${poly(parts(EDGE, m))}" fill="none" style="stroke:var(--lime)" stroke-width="10"/>
       <polygon points="${poly(parts(PLATE, m))}" fill="url(#pl${g})"/>
-      <polyline points="${poly(parts(PLATE_TOP, m))}" stroke="#8cff4f" stroke-width="6" fill="none"/>`;
+      <polyline points="${poly(parts(PLATE_TOP, m))}" style="stroke:var(--lime)" stroke-width="6" fill="none"/>`;
   });
   document.getElementById('geo').innerHTML = svg;
   // text boxes follow the plate: top of the plate + same offsets on both sides
@@ -103,6 +106,7 @@
   }
 
   PP.onState((s, prev) => {
+    PP.setLogo($('userlogo'));
     [0, 1].forEach((i) => {
       const n = i + 1, p = s.players[i];
       const changed = !prev || !PP.same(side(p), side(prev.players[i])) || s.mirrorPlayer2 !== prev.mirrorPlayer2;
