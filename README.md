@@ -31,7 +31,7 @@ Green theme with plus-sign patterns. Windows program (Electron), nothing to inst
 
 ### Your own or bigger art
 
-The bundled art is 384 x 480 (42 fighters, 668 costumes, imported from the [wise-generator](https://github.com/juanwise/wise-generator) repository). Put your own
+The bundled art is about 384 x 480 (42 fighters, imported from the [wise-generator](https://github.com/juanwise/wise-generator) repository). Peach, Zelda, Toon Link, Captain Falcon and Roy were rebuilt from full costume sheets (regular costumes first, in sheet order); costumes taken from those sheets are a little softer than the rest. Put your own
 images in `stream-tool-data/custom-art/<fighter>/<costume number>.png` (next to the program, created on first run). They are used instead of the bundled ones;
 any size, transparent background, PNG / WebP / JPG. Selector icons work the same way in `stream-tool-data/custom-icons/`.
 Fighter folder names: `mario`, `king_dedede`, `mr_game_and_watch`, `rob`, ... (see `assets/characters.json`).

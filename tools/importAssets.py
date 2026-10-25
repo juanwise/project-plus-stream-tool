@@ -17,6 +17,8 @@ enum = (src / "src/main/java/thumbnailgenerator/enums/games/ssbpm/ProjectMEnum.j
 fighters = [{"name": n, "code": c, "costumes": int(q)}
             for n, c, q in re.findall(r'\("([^"]+)", "([^"]+)", -1, (\d+)\)', enum) if c != "random"]
 out = Path(__file__).resolve().parent.parent / "assets"
+# Rebuilt by hand from complete costume sheets (sheet order, regular costumes first): never overwritten from wise-generator.
+HAND_BUILT = {"peach", "zelda", "toon_link", "captain_falcon", "roy"}
 
 
 def convert(job):
@@ -31,6 +33,9 @@ def convert(job):
 
 jobs = []
 for f in fighters:
+    if f["code"] in HAND_BUILT:
+        f["costumes"] = len(list((out / "characters" / f["code"]).glob("*.webp")))
+        continue
     for kind, base, size in (("characters", src / "assets/characters/ssbpm/artwork", None),
                              ("icons", src / "src/main/resources/icons/ssbpm", None)):
         dest = out / kind / f["code"]

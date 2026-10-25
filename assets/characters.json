@@ -12,7 +12,7 @@
  {
   "name": "Peach",
   "code": "peach",
-  "costumes": 3
+  "costumes": 15
  },
  {
   "name": "Wario",
@@ -42,7 +42,7 @@
  {
   "name": "Captain Falcon",
   "code": "captain_falcon",
-  "costumes": 13
+  "costumes": 20
  },
  {
   "name": "Fox",
@@ -67,12 +67,12 @@
  {
   "name": "Toon Link",
   "code": "toon_link",
-  "costumes": 12
+  "costumes": 18
  },
  {
   "name": "Zelda",
   "code": "zelda",
-  "costumes": 7
+  "costumes": 15
  },
  {
   "name": "Sheik",
@@ -162,7 +162,7 @@
  {
   "name": "Roy",
   "code": "roy",
-  "costumes": 10
+  "costumes": 16
  },
  {
   "name": "Ike",
