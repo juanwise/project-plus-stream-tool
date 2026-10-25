@@ -129,7 +129,7 @@ const PHASES = `query Phases($slug: String!) {
   event(slug: $slug) { name tournament { name } phases { id name phaseOrder bracketType } } }`;
 const PHASE_SETS = `query PhaseSets($id: ID!, $page: Int!) {
   phase(id: $id) { sets(page: $page, perPage: 40, sortType: STANDARD) { pageInfo { totalPages }
-    nodes { id round fullRoundText winnerId slots { entrant { id name participants { gamerTag prefix } } standing { placement stats { score { value } } } } } } } }`;
+    nodes { id identifier round fullRoundText winnerId slots { entrant { id name participants { gamerTag prefix } } standing { placement stats { score { value } } } } } } } }`;
 
 function slotOf(slot, winnerId) {
   const e = slot && slot.entrant;
@@ -142,7 +142,7 @@ function slotOf(slot, winnerId) {
 // Keeps the end of the bracket only: the last winners rounds, the last losers rounds and the grand final(s).
 function buildBracket(nodes, keepWinners = 4, keepLosers = 6) {
   const sets = nodes.filter((n) => n && n.slots && n.slots.length >= 2).map((n) => ({
-    id: String(n.id), round: n.round, text: n.fullRoundText || '', a: slotOf(n.slots[0], n.winnerId), b: slotOf(n.slots[1], n.winnerId) }));
+    id: String(n.id), ident: n.identifier || '', round: n.round, text: n.fullRoundText || '', a: slotOf(n.slots[0], n.winnerId), b: slotOf(n.slots[1], n.winnerId) }));
   const isGF = (x) => /grand\s*final/i.test(x.text);
   const gf = sets.filter(isGF).sort((x, y) => x.round - y.round);
   const group = (list) => {

@@ -5,134 +5,125 @@
 <title>Project Plus Bracket</title>
 <link rel="stylesheet" href="theme.css">
 <style>
-  #title { position: absolute; left: 0; width: 1920px; top: 24px; height: 140px; display: flex; align-items: center; justify-content: center; gap: 28px; z-index: 2; }
-  #title h1 { margin: 0; font-size: 96px; font-weight: 900; font-style: italic; line-height: 100px; letter-spacing: -3px; text-shadow: 0 5px 0 rgba(0,0,0,.55); }
-  #title .ul { height: 120px; max-width: 220px; width: auto; object-fit: contain; }
-  #tournament { font-size: 32px; letter-spacing: 6px; color: var(--mint); margin-top: 4px; text-align: center; height: 40px; line-height: 40px; }
+  #title { position: absolute; left: 0; width: 1920px; top: 14px; height: 110px; display: flex; align-items: center; justify-content: center; gap: 28px; z-index: 2; }
+  #title h1 { margin: 0; font-size: 80px; font-weight: 900; font-style: italic; line-height: 84px; letter-spacing: -2px; text-align: center; text-shadow: 0 5px 0 rgba(0,0,0,.55); }
+  #title .ul { height: 100px; max-width: 200px; width: auto; object-fit: contain; }
+  #tournament { font-size: 26px; letter-spacing: 6px; color: var(--mint); text-align: center; height: 28px; line-height: 28px; }
   #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 2; }
-  .card { position: absolute; width: 236px; overflow: hidden; background: linear-gradient(170deg, var(--card1), var(--card2) 85%);
-    border-top: 4px solid var(--lime); box-shadow: 0 6px 14px rgba(0,0,0,.4); }
-  .card::before { content: ""; position: absolute; inset: 0; background: var(--plus-pattern); background-size: 80px 80px; opacity: .7; }
-  .card > * { position: relative; }
-  .strip { display: flex; align-items: center; justify-content: center; background: rgba(var(--ink-rgb), .82); color: var(--lime); letter-spacing: 2px; white-space: nowrap; overflow: hidden; }
-  .prow { display: flex; align-items: stretch; background: linear-gradient(90deg, rgba(var(--ink-rgb), .55), rgba(var(--deep-rgb), .35)); border-top: 1px solid rgba(var(--mint-rgb), .12); }
-  .mir .prow { flex-direction: row-reverse; background: linear-gradient(270deg, rgba(var(--ink-rgb), .55), rgba(var(--deep-rgb), .35)); }
-  .nm { flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 12px; font-weight: 900; letter-spacing: -.3px; overflow: hidden; }
-  .mir .nm { justify-content: flex-end; text-align: right; }
-  .ctr .nm { justify-content: center; text-align: center; }
+  #lines { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #lines path { fill: none; stroke: var(--lime); stroke-width: 3; stroke-linejoin: round; opacity: .85; }
+  .hd { position: absolute; height: 44px; border-bottom: 3px solid rgba(var(--mint-rgb), .45); font-size: 24px; font-weight: 900; letter-spacing: 1px; line-height: 40px; white-space: nowrap; overflow: hidden; text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+  .hd.sec { color: var(--lime); }
+  .set { position: absolute; background: rgba(var(--ink-rgb), .88); border: 2px solid rgba(var(--mint-rgb), .35); border-left: 5px solid var(--lime); box-shadow: 0 5px 12px rgba(0,0,0,.4); }
+  .pr { display: flex; align-items: stretch; height: 50%; overflow: hidden; }
+  .pr + .pr { border-top: 1px solid rgba(var(--mint-rgb), .25); }
+  .nm { flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 12px; font-weight: 800; color: var(--muted); }
   .nm .line { display: inline-flex; align-items: center; white-space: nowrap; }
-  .nm .t { color: var(--lime); margin-right: .45em; font-weight: 800; font-size: .62em; }
-  .mir .nm .t { margin-right: 0; margin-left: .45em; order: 2; }
-  .sc { width: 56px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--ink); background: var(--green); }
-  .prow.win .sc { background: linear-gradient(160deg, var(--acc2), var(--bright)); }
-  .prow.win .nm { color: #fff; }
-  .prow.lose { opacity: .55; }
-  .prow.tbd .nm { color: var(--muted); font-weight: 800; }
-  .scoreline { display: flex; align-items: center; justify-content: center; gap: 16px; font-weight: 900; color: var(--lime); background: rgba(var(--deep-rgb), .75); }
-  .scoreline b { color: #fff; min-width: 1.2em; text-align: center; }
-  .label { position: absolute; height: 34px; line-height: 34px; text-align: center; font-size: 24px; letter-spacing: 8px; color: var(--mint); border-bottom: 3px solid var(--lime); }
-  #empty { position: absolute; left: 0; width: 1920px; top: 470px; text-align: center; font-size: 44px; letter-spacing: 6px; color: var(--mint); display: none; z-index: 2; }
+  .nm .t { color: var(--lime); opacity: .8; font-size: .66em; margin-right: .5em; font-weight: 800; }
+  .sc { width: 46px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 900; background: var(--deep); color: var(--muted); }
+  .pr.win .nm { color: #fff; font-weight: 900; }
+  .pr.win .sc { background: linear-gradient(160deg, var(--acc2), var(--bright)); color: var(--ink); }
+  .pr.tbd .nm { opacity: .5; }
+  .id { position: absolute; left: -22px; top: 50%; margin-top: -13px; width: 26px; height: 26px; line-height: 26px; text-align: center; font-size: 15px; font-weight: 900; color: var(--ink); background: var(--lime); border-radius: 4px; }
+  #empty { position: absolute; left: 0; width: 1920px; top: 490px; text-align: center; font-size: 44px; letter-spacing: 6px; color: var(--mint); display: none; z-index: 2; }
 </style>
 </head>
 <body>
   <div class="pp-bg"></div>
-  <div id="title"><div id="titlelogo"></div><div><h1 style="text-align:center">Bracket</h1><div id="tournament"></div></div><div id="titlelogo2"></div></div>
-  <div id="stage"></div>
+  <div id="title"><div id="titlelogo"></div><div><h1>Bracket</h1><div id="tournament"></div></div><div id="titlelogo2"></div></div>
+  <div id="stage"><svg id="lines" viewBox="0 0 1920 1080"></svg><div id="boxes"></div></div>
   <div id="empty">Press "Update bracket" on the panel</div>
 
 <script src="themes.js"></script>
 <script src="common.js"></script>
 <script>
+  // Laid out like a Start.gg bracket: rounds are columns from left to right, winners on top, losers below,
+  // the grand final continues the winners row, and lines join each set to the set it feeds.
   const $ = (id) => document.getElementById(id);
-  const CW = 236, GAP = 22, CX = 960 - CW / 2;          // card width, gap, left edge of the centre column
-  const colLeft = (side, k) => (side === 'L' ? CX - k * (CW + GAP) : CX + k * (CW + GAP));   // the right side is the exact mirror of the left
-  const TOP = 205, BOTTOM = 1040;
   const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const shortRound = (t) => String(t || '').replace(/^Winners\s+/i, 'W ').replace(/^Losers\s+/i, 'L ').replace(/Quarter-?Final/i, 'Quarters').replace(/Semi-?Final/i, 'Semis').replace(/Final(?!s)/i, 'Finals');
   const scoreText = (v) => (v == null ? '' : v < 0 ? 'DQ' : String(v));
+  const GAP = 64, AREA_TOP = 150, AREA_BOTTOM = 1050;
 
-  function playerRow(p, done, h) {
-    const cls = ['prow', !p.name ? 'tbd' : '', done && p.winner ? 'win' : '', done && p.name && !p.winner ? 'lose' : ''].join(' ');
-    const fs = Math.round(h * .5);
-    return `<div class="prow ${cls}" style="height:${h}px;font-size:${fs}px"><div class="nm"><span class="line">${p.team ? `<span class="t">${esc(p.team)}</span>` : ''}<span class="n">${esc(p.name || 'TBD')}</span></span></div><div class="sc" style="font-size:${Math.round(h * .55)}px">${esc(scoreText(p.score))}</div></div>`;
-  }
-  function sideCard(set, side, x, y, H) {
-    const sh = Math.round(H * .26), rh = Math.round((H - sh - 4) / 2), done = set.a.winner || set.b.winner;
-    return `<div class="card ${side === 'R' ? 'mir' : ''}" style="left:${x}px;top:${y}px;height:${H}px" data-side="${side}">
-      <div class="strip" style="height:${sh}px;font-size:${Math.round(sh * .55)}px">${esc(shortRound(set.text))}</div>${playerRow(set.a, done, rh)}${playerRow(set.b, done, rh)}</div>`;
-  }
-  function centerCard(set, x, y, H, text) {
-    const sh = Math.round(H * .2), nh = Math.round(H * .27), ch = H - sh - 2 * nh - 4, done = set.a.winner || set.b.winner;
-    const nm = (p) => `<div class="prow ctr ${!p.name ? 'tbd' : ''} ${done && p.winner ? 'win' : ''} ${done && p.name && !p.winner ? 'lose' : ''}" style="height:${nh}px;font-size:${Math.round(nh * .52)}px"><div class="nm" style="justify-content:center"><span class="line">${p.team ? `<span class="t">${esc(p.team)}</span>` : ''}<span class="n">${esc(p.name || 'TBD')}</span></span></div></div>`;
-    const sa = scoreText(set.a.score), sb = scoreText(set.b.score);
-    return `<div class="card ctr" style="left:${x}px;top:${y}px;height:${H}px" data-side="C">
-      <div class="strip" style="height:${sh}px;font-size:${Math.round(sh * .56)}px">${esc(text || shortRound(set.text))}</div>${nm(set.a)}
-      <div class="scoreline" style="height:${ch}px;font-size:${Math.round(ch * .62)}px">${sa === '' && sb === '' ? '<span>VS</span>' : `<b>${esc(sa) || '-'}</b>–<b>${esc(sb) || '-'}</b>`}</div>${nm(set.b)}</div>`;
+  function row(p, done) {
+    const cls = ['pr', !p.name ? 'tbd' : '', done && p.winner ? 'win' : ''].join(' ');
+    return `<div class="${cls}"><div class="nm"><span class="line">${p.team ? `<span class="t">${esc(p.team)}</span>` : ''}<span class="n">${esc(p.name || 'TBD')}</span></span></div><div class="sc">${esc(scoreText(p.score))}</div></div>`;
   }
 
-  // Splits a round into the sets drawn on the left, the right and (a lone set) in the centre.
-  function split(round) {
-    const n = round.sets.length, half = Math.floor(n / 2);
-    return { left: round.sets.slice(0, half), right: round.sets.slice(n - half), mid: n % 2 ? [round.sets[half]] : [] };
-  }
-  function sectionPlan(rounds) {
-    const parts = rounds.map(split), sided = parts.filter((p) => p.left.length), singles = parts.flatMap((p) => p.mid);
-    const cols = sided.slice(-3).map((p, i, arr) => ({ part: p, k: arr.length - i }));      // outermost first; k = distance from the centre column
-    return { cols, singles, rows: Math.max(1, ...cols.map((c) => c.part.left.length)) };
+  // Heights of every set of a section: first column evenly spread, the next ones follow the sets that feed them.
+  function ys(cols, top, height) {
+    const out = [];
+    cols.forEach((c, i) => {
+      const n = c.sets.length, prev = out[i - 1];
+      if (i && prev && n === prev.length) out.push(prev.slice());
+      else if (i && prev && n * 2 === prev.length) out.push(c.sets.map((_, k) => (prev[2 * k] + prev[2 * k + 1]) / 2));
+      else out.push(c.sets.map((_, k) => top + (k + .5) * height / n));
+    });
+    return out;
   }
 
   function draw(s) {
-    const b = s.bracket, stage = $('stage');
+    const b = s.bracket, boxes = $('boxes'), lines = $('lines');
     $('empty').style.display = b ? 'none' : 'block';
-    if (!b) { stage.innerHTML = ''; return; }
-    const wn = s.bracketDepth === 4 ? 2 : 3, ln = s.bracketDepth === 4 ? 2 : 4;
-    const W = sectionPlan((b.winners || []).slice(-wn)), L = sectionPlan((b.losers || []).slice(-ln));
-    const gfSets = b.gf || [];
-    const gf = gfSets.slice().reverse().find((x) => x.a.name && x.b.name) || gfSets[0];
-    const center = [...W.singles.map((x) => ({ set: x })), ...(gf ? [{ set: gf, text: /reset/i.test(gf.text) ? 'Grand Final Reset' : 'Grand Final', gf: true }] : []), ...L.singles.slice().reverse().map((x) => ({ set: x }))];
-    const labelH = 44, usable = BOTTOM - TOP;
-    // side blocks share the height in proportion to their rows; the centre column is spread over the whole height
-    const rowsTotal = W.rows + L.rows, hW = (usable - 2 * labelH) * W.rows / rowsTotal, hL = (usable - 2 * labelH) * L.rows / rowsTotal;
-    const cellW = hW / W.rows, cellL = hL / L.rows;
-    const HS = Math.max(96, Math.min(138, Math.min(cellW, cellL) - 26));
-    let html = '';
-    const place = (plan, y0, cell, side) => plan.cols.forEach(({ part, k }) => {
-      const list = side === 'L' ? part.left : part.right, per = list.length, span = cell * plan.rows;
-      list.forEach((set, i) => { const cy = y0 + (i + .5) * span / per; html += sideCard(set, side, colLeft(side, k), Math.round(cy - HS / 2), Math.round(HS)); });
+    if (!b) { boxes.innerHTML = ''; lines.innerHTML = ''; return; }
+    const depth = s.bracketDepth === 16 ? 16 : s.bracketDepth === 4 ? 4 : 8;
+    const wn = { 16: 3, 8: 2, 4: 1 }[depth], ln = { 16: 6, 8: 4, 4: 2 }[depth];
+    const wCols = (b.winners || []).slice(-wn).map((r) => ({ text: r.text, sets: r.sets }));
+    (b.gf || []).slice(0, 2).forEach((g, i) => wCols.push({ text: i ? 'Grand Final Reset' : 'Grand Final', sets: [g] }));
+    const lCols = (b.losers || []).slice(-ln).map((r) => ({ text: r.text, sets: r.sets }));
+    const sections = [{ name: 'w', cols: wCols }, { name: 'l', cols: lCols }].filter((x) => x.cols.length);
+    const ncols = Math.max(...sections.map((x) => x.cols.length));
+    const boxW = Math.min(300, Math.floor((1800 - (ncols - 1) * GAP) / ncols));
+    const x0 = Math.round((1920 - (ncols * boxW + (ncols - 1) * GAP)) / 2);
+    const colX = (i) => x0 + i * (boxW + GAP);
+    const rowsOf = (x) => Math.max(...x.cols.map((c) => c.sets.length));
+    const HEAD = 52, SECGAP = sections.length > 1 ? 26 : 0;
+    const totalRows = sections.reduce((a, x) => a + rowsOf(x), 0);
+    const pitch = Math.min(150, (AREA_BOTTOM - AREA_TOP - HEAD * sections.length - SECGAP) / totalRows);
+    const boxH = Math.round(Math.min(100, pitch - 24));
+    let html = '', path = '', y = AREA_TOP;
+    sections.forEach((sec) => {
+      const rows = rowsOf(sec), height = rows * pitch, top = y + HEAD;
+      const pos = ys(sec.cols, top, height);
+      sec.cols.forEach((c, i) => {
+        html += `<div class="hd" data-col="${i}" style="left:${colX(i)}px;top:${y}px;width:${boxW}px">${esc(c.text)}</div>`;
+        c.sets.forEach((set, k) => {
+          const cy = Math.round(pos[i][k]), done = set.a.winner || set.b.winner;
+          html += `<div class="set" data-col="${i}" style="left:${colX(i)}px;top:${cy - boxH / 2}px;width:${boxW}px;height:${boxH}px;font-size:${Math.round(boxH * .3)}px">${set.ident ? `<div class="id">${esc(set.ident)}</div>` : ''}${row(set.a, done)}${row(set.b, done)}</div>`;
+          if (i) {   // line from the set(s) of the previous round
+            const prev = pos[i - 1], xr = colX(i - 1) + boxW, xl = colX(i), xm = xr + GAP / 2;
+            if (sec.cols[i - 1].sets.length === c.sets.length) path += `M${xr} ${prev[k]}H${xl}`;
+            else if (sec.cols[i - 1].sets.length === 2 * c.sets.length) [prev[2 * k], prev[2 * k + 1]].forEach((py) => { path += `M${xr} ${py}H${xm}V${cy}H${xl}`; });
+          }
+        });
+      });
+      y = top + height + SECGAP;
     });
-    const yW = TOP + labelH, yL = TOP + labelH + hW + labelH;
-    ['L', 'R'].forEach((side) => { place(W, yW, cellW, side); place(L, yL, cellL, side); });
-    // section labels, over the middle of each side's columns (the same text and size on both sides)
-    const labelBox = (plan, side) => { const k = Math.max(1, ...plan.cols.map((c) => c.k)); const l = colLeft(side, side === 'L' ? k : 1), r = colLeft(side, side === 'L' ? 1 : k) + CW; return [l, r - l]; };
-    [[W, yW - labelH + 6, 'Winners'], [L, yL - labelH + 6, 'Losers']].forEach(([plan, y, text]) => {
-      if (!plan.cols.length) return;
-      ['L', 'R'].forEach((side) => { const [l, w] = labelBox(plan, side); html += `<div class="label" style="left:${l}px;width:${w}px;top:${y}px">${text}</div>`; });
+    boxes.innerHTML = html; lines.innerHTML = `<path d="${path}"/>`;
+    boxes.querySelectorAll('.hd').forEach((h) => { let fs = 24; while (h.scrollWidth > h.clientWidth && fs > 12) { fs -= 1; h.style.fontSize = fs + 'px'; } });
+    boxes.querySelectorAll('.set').forEach((box) => {                  // shrink long names
+      box.querySelectorAll('.nm').forEach((nm) => {
+        const line = nm.firstElementChild; let fs = parseFloat(box.style.fontSize);
+        nm.style.fontSize = fs + 'px';
+        while (line.scrollWidth > nm.clientWidth - 24 && fs > 11) { fs -= 1; nm.style.fontSize = fs + 'px'; }
+      });
     });
-    if (center.length) {
-      const pitch = usable / center.length, HC = Math.max(112, Math.min(176, pitch - 24));
-      center.forEach((c, i) => { html += centerCard(c.set, CX, Math.round(TOP + (i + .5) * pitch - HC / 2), Math.round(HC), c.text); });
-    }
-    stage.innerHTML = html;
-    stage.querySelectorAll('.card').forEach((c) => c.querySelectorAll('.nm').forEach((nm) => {   // shrink names that do not fit
-      const line = nm.firstElementChild, avail = nm.clientWidth - 24; let fs = parseFloat(nm.parentElement.style.fontSize);
-      while (line.scrollWidth > avail && fs > 11) { fs -= 1; nm.parentElement.style.fontSize = fs + 'px'; }
-    }));
   }
 
   let lastKey = '';
-  PP.onState((s, prev) => {
+  PP.onState((s) => {
+    window.__s = s;
     ['titlelogo', 'titlelogo2'].forEach((id) => {
       const want = PP.logoSrc ? 'logo:' + PP.logoSrc : 'plus', el = $(id);
-      if (el.dataset.kind !== want) { el.dataset.kind = want; el.innerHTML = PP.logoSrc ? `<img class="ul" src="${PP.logoSrc}" alt="">` : PP.plusSvg(120); }
+      if (el.dataset.kind !== want) { el.dataset.kind = want; el.innerHTML = PP.logoSrc ? `<img class="ul" src="${PP.logoSrc}" alt="">` : PP.plusSvg(100); }
     });
     PP.setText($('tournament'), s.tournament || (s.bracket && s.bracket.tournament) || ' ');
     const key = JSON.stringify([s.bracket, s.bracketDepth]);
     if (key === lastKey) return;
     lastKey = key; draw(s);
-    document.querySelectorAll('#stage .card').forEach((c, i) => PP.slideIn(c, c.dataset.side === 'L' ? 'left' : c.dataset.side === 'R' ? 'right' : 'up', 40 + i * 25));
+    document.querySelectorAll('#boxes .set, #boxes .hd').forEach((el) => PP.slideIn(el, 'left', 40 + Number(el.dataset.col) * 120));
+    PP.anim($('lines'), [{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 500 });
   });
   document.fonts.ready.then(() => { if (window.__s) draw(window.__s); });
-  PP.onState((s) => { window.__s = s; });
 </script>
 </body>
 </html>

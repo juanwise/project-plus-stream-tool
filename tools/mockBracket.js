@@ -5,7 +5,7 @@ const { startServer } = require('../server');
 let id = 1;
 const names = ['Aeon', 'Bruno', 'Cami', 'Dario', 'Eli', 'Fran', 'Gus', 'Hana', 'Ivo', 'Juli', 'Kai', 'Lea', 'Mateo', 'Nina', 'Oscar', 'Paula'];
 const slot = (n, score, win) => ({ entrant: n == null ? null : { id: 100 + n, name: names[n % 16] + ' long', participants: [{ gamerTag: names[n % 16] + (n === 3 ? 'WithAVeryLongName' : ''), prefix: n % 3 ? 'TAG' : null }] }, standing: n == null ? null : { placement: win ? 1 : 2, stats: { score: { value: score } } } });
-const set = (round, text, a, b, sa, sb) => ({ id: id++, round, fullRoundText: text, winnerId: a == null || b == null || sa == null ? null : (sa > sb ? 100 + a : 100 + b), slots: [slot(a, sa, sa > sb), slot(b, sb, sb > sa)] });
+const set = (round, text, a, b, sa, sb) => ({ id: id++, identifier: String.fromCharCode(64 + ((id - 1) % 26) + 1), round, fullRoundText: text, winnerId: a == null || b == null || sa == null ? null : (sa > sb ? 100 + a : 100 + b), slots: [slot(a, sa, sa > sb), slot(b, sb, sb > sa)] });
 const nodes = [];
 const rounds = [[1, 'Winners Round 1', 8], [2, 'Winners Quarter-Final', 4], [3, 'Winners Semi-Final', 2], [4, 'Winners Final', 1],
   [-1, 'Losers Round 1', 4], [-2, 'Losers Round 2', 4], [-3, 'Losers Round 3', 2], [-4, 'Losers Quarter-Final', 2], [-5, 'Losers Semi-Final', 1], [-6, 'Losers Final', 1]];

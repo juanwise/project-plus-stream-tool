@@ -52,7 +52,7 @@ function normalize(input) {
   s.top8 = Array.from({ length: 8 }, (_, i) => Object.assign(emptyEntry(), (s.top8 || [])[i]));
   delete s.next;   // the old "up next" overlay no longer exists
   s.bestOf = Number(s.bestOf) === 5 ? 5 : 3;
-  s.bracketDepth = Number(s.bracketDepth) === 4 ? 4 : 8;
+  s.bracketDepth = [4, 16].includes(Number(s.bracketDepth)) ? Number(s.bracketDepth) : 8;
   s.themes = Object.assign({}, s.themes && typeof s.themes === 'object' ? s.themes : {});
   for (const k of Object.keys(s.themes)) if (!/^[a-z]{2,12}$/.test(String(s.themes[k]))) delete s.themes[k];
   s.logo = Number(s.logo) > 0 ? Number(s.logo) : 0;
