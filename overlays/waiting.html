@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Plus Waiting</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  /* full screen, opaque: it covers the whole scene while the next game is set up */
+  #bigpattern { position: absolute; inset: 0; z-index: 1; background: var(--plus-pattern); background-size: 320px 320px; opacity: .7; animation: drift2 60s linear infinite; }
+  @keyframes drift2 { to { background-position: 320px 320px; } }
+  #vignette { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse at 50% 50%, rgba(2,20,9,.0) 35%, rgba(2,20,9,.55) 100%); }
+  #center { position: absolute; left: 0; width: 1920px; top: 0; height: 1080px; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #logo { height: 330px; margin-bottom: 34px; }
+  #panel { width: 1240px; height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, rgba(3,16,8,.88), rgba(5,54,30,.9));
+    border-top: 6px solid var(--lime); border-bottom: 6px solid var(--lime); clip-path: polygon(40px 0, calc(100% - 40px) 0, 100% 50%, calc(100% - 40px) 100%, 40px 100%, 0 50%); }
+  #title { font-size: 92px; font-weight: 900; font-style: italic; letter-spacing: -2px; line-height: 104px; text-shadow: 0 5px 0 rgba(0,0,0,.5); }
+  #tournament { font-size: 30px; letter-spacing: 8px; color: var(--mint); line-height: 40px; height: 40px; }
+  #dots { margin-top: 30px; display: flex; gap: 22px; height: 30px; }
+  #dots i { width: 26px; height: 26px; background: var(--lime); clip-path: polygon(34% 0, 66% 0, 66% 34%, 100% 34%, 100% 66%, 66% 66%, 66% 100%, 34% 100%, 34% 66%, 0 66%, 0 34%, 34% 34%); opacity: .25; animation: blink 1.8s ease-in-out infinite; }
+  #dots i:nth-child(2) { animation-delay: .3s; } #dots i:nth-child(3) { animation-delay: .6s; }
+  @keyframes blink { 0%, 100% { opacity: .25; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.1); } }
+</style>
+</head>
+<body>
+  <div class="pp-bg"></div><div id="bigpattern"></div><div id="vignette"></div>
+  <div id="center">
+    <div id="logo"></div>
+    <div id="panel"><div id="title">Waiting for next game</div><div id="tournament"></div></div>
+    <div id="dots"><i></i><i></i><i></i></div>
+  </div>
+
+<script src="common.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  $('logo').innerHTML = PP.plusSvg(330);
+  PP.onState((s) => { PP.setText($('tournament'), s.tournament || ' '); });
+  document.fonts.ready.then(() => PP.fitText($('title'), 1100, 92, 48));
+</script>
+</body>
+</html>

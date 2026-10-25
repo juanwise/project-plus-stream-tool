@@ -5,66 +5,73 @@
 <title>Project Plus Top 8</title>
 <link rel="stylesheet" href="theme.css">
 <style>
-  #title { position: absolute; left: 90px; top: 34px; height: 130px; display: flex; align-items: center; gap: 28px; z-index: 2; }
+  #title { position: absolute; left: 0; width: 1920px; top: 30px; height: 140px; display: flex; align-items: center; justify-content: center; gap: 28px; z-index: 2; }
   #title h1 { margin: 0; font-size: 104px; font-weight: 900; font-style: italic; line-height: 110px; letter-spacing: -3px; text-shadow: 0 5px 0 rgba(0,0,0,.55); }
   #tournament { font-size: 34px; letter-spacing: 6px; color: var(--mint); margin-top: 6px; }
   #grid { position: absolute; left: 90px; top: 184px; width: 1740px; z-index: 2; }
   .card { position: absolute; background: linear-gradient(170deg, #0b8f4e, #03200f 78%); overflow: hidden;
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%); }
+  /* the right block is the mirror image of the left one: corner cut, badge and text move to the other side */
+  .card.mir { clip-path: polygon(0 0, 100% 0, 100% 100%, 30px 100%, 0 calc(100% - 30px)); background: linear-gradient(190deg, #0b8f4e, #03200f 78%); }
+  .card.first { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 30px 100%, 0 calc(100% - 30px)); }
   .card::before { content: ""; position: absolute; inset: 0; background: var(--plus-pattern); background-size: 120px 120px; opacity: .9; }
   .card .art { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - var(--info)); object-fit: contain; object-position: center bottom; filter: drop-shadow(0 8px 12px rgba(0,0,0,.5)); }
+  .mir .info { align-items: flex-end; text-align: right; background: linear-gradient(270deg, #031008, #07482a); }
+  .card.first .info { align-items: center; text-align: center; }
   .card .info { position: absolute; left: 0; right: 0; bottom: 0; height: var(--info); background: linear-gradient(90deg, #031008, #07482a); border-top: 5px solid var(--lime); padding: 0 22px; display: flex; flex-direction: column; justify-content: center; }
-  .card .team { color: var(--lime); font-size: 22px; line-height: 24px; letter-spacing: 2px; }
-  .card .team:empty { display: none; }
-  .card .name { font-size: 40px; line-height: 46px; font-weight: 900; letter-spacing: -.5px; display: inline-block; }
-  .card.small { --info: 104px; width: 274px; height: 395px; }
-  .card.first { --info: 150px; width: 560px; height: 810px; }
-  .card.first .team { font-size: 34px; line-height: 38px; }
-  .card.first .name { font-size: 76px; line-height: 84px; }
-  .card.first .info { border-top-color: #e9ffd0; background: linear-gradient(90deg, #031008, #0a6b3a); }
+  .card .team { color: var(--lime); font-size: 22px; height: 28px; line-height: 28px; letter-spacing: 2px; }
+  .card .name { font-size: 40px; height: 52px; line-height: 52px; font-weight: 900; letter-spacing: -.5px; }
+  .card.small { --info: 104px; width: 285px; height: 395px; }
+  .card.first { --info: 150px; width: 520px; height: 810px; }
+  .card.first .team { font-size: 34px; height: 40px; line-height: 40px; }
+  .card.first .name { font-size: 76px; height: 90px; line-height: 90px; }
+  .card.first .info { border-top-color: #e9ffd0; background: linear-gradient(90deg, #031008, #0a6b3a, #031008); }
   .card.first::after { content: ""; position: absolute; inset: 0; border: 6px solid var(--lime); z-index: 4; pointer-events: none; }
   .place { position: absolute; left: 10px; top: 8px; z-index: 3; }
-  .small .place { width: 80px; height: 80px; } .first .place { width: 130px; height: 130px; left: 18px; top: 14px; }
+  .mir .place { left: auto; right: 10px; }
+  .small .place { width: 80px; height: 80px; } .first .place { width: 130px; height: 130px; left: 50%; margin-left: -65px; top: 14px; }
   .place svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .place span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #03150a; padding-bottom: 2px; }
   .small .place span { font-size: 38px; } .first .place span { font-size: 66px; }
+  .flag { position: absolute; right: 12px; top: 14px; z-index: 3; width: 66px; height: 44px; object-fit: cover; border: 3px solid var(--ink); box-shadow: 0 3px 8px rgba(0,0,0,.5); background: #031008; }
+  .mir .flag { right: auto; left: 12px; }
+  .first .flag { right: auto; left: 50%; margin-left: -50px; top: auto; bottom: calc(var(--info) + 14px); width: 100px; height: 66px; border-width: 4px; }
+  .flag.none { display: none; }
   .card.empty .art { visibility: hidden; }
-  #logoTile { position: absolute; left: 1466px; top: 415px; width: 274px; height: 395px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-    background: rgba(3,16,8,.55); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%); border: 0; }
+  #logoTile { position: absolute; left: 1455px; top: 415px; width: 285px; height: 395px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    background: rgba(3,16,8,.55); clip-path: polygon(0 0, 100% 0, 100% 100%, 30px 100%, 0 calc(100% - 30px)); border: 0; }
   #logoTile div { font-size: 26px; letter-spacing: 4px; color: var(--mint); text-align: center; white-space: normal; padding: 0 16px; }
 </style>
 </head>
 <body>
   <div class="pp-bg"></div>
-  <div id="title"><div id="titlelogo"></div><div><h1>Top 8</h1><div id="tournament"></div></div></div>
+  <div id="title"><div id="titlelogo"></div><div style="text-align:center"><h1>Top 8</h1><div id="tournament"></div></div><div id="titlelogo2"></div></div>
   <div id="grid"><div id="logoTile"><div id="tilelogo"></div><div id="tiletext"></div></div></div>
 
 <script src="common.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
-  $('titlelogo').innerHTML = PP.plusSvg(120);
+  $('titlelogo').innerHTML = PP.plusSvg(120); $('titlelogo2').innerHTML = PP.plusSvg(120);
   // 1st place is the big card on the left; places 2-8 are all the same size
   const grid = $('grid');
   $('tilelogo').innerHTML = PP.plusSvg(150);
+  // x positions of the small cards (the layout is symmetric around the big card): left block, then right block
+  const SLOTS = [null, [0, 0], [305, 0], [0, 415], [305, 415], [1150, 0], [1455, 0], [1150, 415]];
   for (let i = 0; i < 8; i++) {
     const c = document.createElement('div');
     c.id = 'card' + i;
-    if (i === 0) { c.className = 'card first'; c.style.left = '0px'; c.style.top = '0px'; }
-    else {
-      const k = i - 1;
-      c.className = 'card small';
-      c.style.left = 584 + (k % 4) * 294 + 'px'; c.style.top = Math.floor(k / 4) * 415 + 'px';
-    }
-    c.innerHTML = `<img class="art" alt=""><div class="place">${PP.plusSvg(130)}<span>${i + 1}</span></div>
+    if (i === 0) { c.className = 'card first'; c.style.left = '610px'; c.style.top = '0px'; }
+    else { c.className = 'card small' + (i >= 5 ? ' mir' : ''); c.style.left = SLOTS[i][0] + 'px'; c.style.top = SLOTS[i][1] + 'px'; }
+    c.innerHTML = `<img class="art" alt=""><img class="flag none" alt=""><div class="place">${PP.plusSvg(130)}<span>${i + 1}</span></div>
       <div class="info"><span class="team"></span><span class="name"></span></div>`;
     grid.appendChild(c);
   }
-  const key = (p) => ({ name: p.name, team: p.team, character: p.character, alt: p.alt });
+  const key = (p) => ({ name: p.name, team: p.team, character: p.character, alt: p.alt, country: p.country });
 
   function fit(c) {
     const name = c.querySelector('.name'), avail = c.clientWidth - 44, base = c.classList.contains('first') ? 76 : 40;
-    let size = base; name.style.fontSize = ''; name.style.lineHeight = '';
-    while (name.scrollWidth > avail && size > 18) { size -= 2; name.style.fontSize = size + 'px'; name.style.lineHeight = Math.round(size * 1.15) + 'px'; }
+    let size = base; name.style.fontSize = '';
+    while (name.scrollWidth > avail && size > 18) { size -= 2; name.style.fontSize = size + 'px'; }
   }
 
   PP.onState((s, prev) => {
@@ -76,8 +83,11 @@
       PP.setText(c.querySelector('.team'), p.team);
       PP.setImg(c.querySelector('.art'), PP.art(p.character, p.alt));
       c.classList.toggle('empty', !p.character);
+      const flag = c.querySelector('.flag');
+      flag.onerror = () => flag.classList.add('none');       // flag could not be downloaded: just hide it
+      if (p.country) { flag.classList.remove('none'); const src = '/flag/' + p.country; if (flag.getAttribute('src') !== src) flag.src = src; } else flag.classList.add('none');
       fit(c);
-      if (!prev || !PP.same(key(p), key(prev.top8[i]))) PP.slideIn(c, i === 0 ? 'left' : 'up', i === 0 ? 0 : 120 + 50 * i);
+      if (!prev || !PP.same(key(p), key(prev.top8[i]))) PP.slideIn(c, 'up', i === 0 ? 0 : 120 + 50 * i);
     });
   });
   document.fonts.ready.then(() => document.querySelectorAll('.card').forEach(fit));

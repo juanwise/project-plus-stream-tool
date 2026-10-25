@@ -8,12 +8,11 @@
 </head>
 <body>
 <header>
-  <div class="brand"><svg viewBox="0 0 100 100" width="34" height="34"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14e0b4"/><stop offset="1" stop-color="#3cff4a"/></linearGradient></defs><path d="M34 4h32v30h30v32H66v30H34V66H4V34h30z" fill="url(#g)" stroke="#031008" stroke-width="7" stroke-linejoin="round"/></svg>
+  <div class="brand"><svg viewBox="0 0 100 100" width="34" height="34"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14e0b4"/><stop offset="1" stop-color="#3cff4a"/></linearGradient></defs><path d="M34 4h32v30h30v32H66v30H34V66H4V34h30z" fill="url(#g)" stroke="#031008" stroke-width="7" stroke-linejoin="round"/></svg>
     <div><b>Project Plus</b> Stream Tool</div></div>
   <nav>
     <button class="tab active" data-tab="match">Match</button>
     <button class="tab" data-tab="top8">Top 8</button>
-    <button class="tab" data-tab="next">Next match</button>
     <button class="tab" data-tab="overlays">Overlays</button>
   </nav>
   <div class="actions">
@@ -52,19 +51,13 @@
 
   <!-- TOP 8 -->
   <section id="tab-top8" class="tabpane">
-    <div class="card"><div class="rows" id="top8rows"></div></div>
-  </section>
-
-  <!-- NEXT MATCH -->
-  <section id="tab-next" class="tabpane">
     <div class="card">
-      <label class="wide">Round <input id="nextRound" data-path="next.round" type="text" list="rounds" placeholder="Losers Semis"></label>
-      <div class="rows" id="nextrows"></div>
-      <div class="row-actions">
-        <button id="promote">Make this the current match</button>
-        <button id="fromCurrent">Copy current match here</button>
-      </div>
+      <h3>Import from Start.gg</h3>
+      <div class="importrow"><input id="sggLink" type="text" placeholder="https://www.start.gg/tournament/.../event/..."><button id="sggImport" class="primary">Import top 8</button></div>
+      <div class="importrow"><input id="sggToken" type="password" placeholder="Start.gg API token (saved on this computer)"><button id="sggSave">Save token</button></div>
+      <p class="hint" id="sggMsg">Fills names, tags, countries and characters. Get a free token in start.gg → your profile → Developer Settings → Create new token. Review the result, then press Update.</p>
     </div>
+    <div class="card"><div class="rows" id="top8rows"></div></div>
   </section>
 
   <!-- OVERLAYS -->

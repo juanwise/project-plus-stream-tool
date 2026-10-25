@@ -6,8 +6,13 @@
 //   GET  /art/<f>/<n>     fighter art:  <data>/custom-art/<f>/<n>.(png|webp|jpg), else the bundled one
 //   GET  /icon/<f>/<n>    selector icon (same lookup, <data>/custom-icons)
 //   GET  /characters      fighter list
+//   GET  /flag/<cc>       country flag png: bundled assets/flags, else cached in <data>/flags, else downloaded once from flagcdn
+//   GET/POST /settings    Start.gg API token (kept in <data>/settings.json, never sent to the overlays)
+//   POST /import/startgg  {link} -> top 8 of a Start.gg event
 const http = require('http');
 const fs = require('fs');
+const https = require('https');
+const startgg = require('./startgg');
 const path = require('path');
 
 const MIME = {
@@ -17,7 +22,7 @@ const MIME = {
 };
 
 const emptyPlayer = () => ({ name: '', team: '', character: '', alt: 1, score: 0 });
-const emptyEntry = () => ({ name: '', team: '', character: '', alt: 1 });
+const emptyEntry = () => ({ name: '', team: '', country: '', character: '', alt: 1 });
 
 function defaultState() {
   return {
@@ -28,7 +33,6 @@ function defaultState() {
     mirrorPlayer2: true,
     players: [emptyPlayer(), emptyPlayer()],
     top8: Array.from({ length: 8 }, emptyEntry),
-    next: { round: '', p1: emptyEntry(), p2: emptyEntry() },
   };
 }
 
@@ -40,19 +44,17 @@ function normalize(input) {
   s.grandFinals = Object.assign({ on: false, reset: false }, s.grandFinals);
   s.players = [0, 1].map((i) => Object.assign(emptyPlayer(), (s.players || [])[i]));
   s.top8 = Array.from({ length: 8 }, (_, i) => Object.assign(emptyEntry(), (s.top8 || [])[i]));
-  s.next = Object.assign({ round: '' }, s.next);
-  s.next.p1 = Object.assign(emptyEntry(), s.next.p1);
-  s.next.p2 = Object.assign(emptyEntry(), s.next.p2);
+  delete s.next;   // the old "up next" overlay no longer exists
   s.players.forEach((p) => { p.score = Math.max(0, parseInt(p.score, 10) || 0); p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
-  [...s.top8, s.next.p1, s.next.p2].forEach((p) => { p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
+  s.top8.forEach((p) => { p.country = /^[a-z]{2}$/i.test(p.country || '') ? p.country.toLowerCase() : ''; p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
   return s;
 }
 
-function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-tool-data') } = {}) {
+function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-tool-data'), fetchImpl } = {}) {
   const root = __dirname;
   const stateFile = path.join(dataDir, 'state.json');
   fs.mkdirSync(dataDir, { recursive: true });
-  for (const d of ['custom-art', 'custom-icons']) fs.mkdirSync(path.join(dataDir, d), { recursive: true });
+  for (const d of ['custom-art', 'custom-icons', 'flags']) fs.mkdirSync(path.join(dataDir, d), { recursive: true });
 
   let state = defaultState();
   try { state = normalize(JSON.parse(fs.readFileSync(stateFile, 'utf8'))); } catch (e) { /* first run */ }
@@ -89,6 +91,39 @@ function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-t
     res.writeHead(404); res.end('not found');
   }
 
+  // ---- settings (Start.gg token) ----
+  const settingsFile = path.join(dataDir, 'settings.json');
+  const readSettings = () => { try { return JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (e) { return {}; } };
+  const fighters = () => { try { return JSON.parse(fs.readFileSync(path.join(root, 'assets', 'characters.json'), 'utf8')); } catch (e) { return []; } };
+  const json = (res, code, obj) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }); res.end(JSON.stringify(obj)); };
+  const readBody = (req, cb) => {
+    let body = '';
+    req.on('data', (c) => { body += c; if (body.length > 1e6) req.destroy(); });
+    req.on('end', () => { try { cb(JSON.parse(body || '{}')); } catch (e) { cb(null); } });
+  };
+
+  // ---- flags: bundled, then cached, then downloaded once ----
+  const flagWaiting = new Map();
+  function downloadFlag(cc) {
+    if (!flagWaiting.has(cc)) {
+      const file = path.join(dataDir, 'flags', cc + '.png');
+      const p = new Promise((resolve) => {
+        const req = https.get(`https://flagcdn.com/w160/${cc}.png`, { timeout: 8000 }, (r) => {
+          if (r.statusCode !== 200) { r.resume(); return resolve(null); }
+          const chunks = []; r.on('data', (c) => chunks.push(c));
+          r.on('end', () => { const buf = Buffer.concat(chunks); try { fs.writeFileSync(file, buf); } catch (e) { /* cache is optional */ } resolve(file); });
+        });
+        req.on('error', () => resolve(null)); req.on('timeout', () => { req.destroy(); resolve(null); });
+      }).finally(() => flagWaiting.delete(cc));
+      flagWaiting.set(cc, p);
+    }
+    return flagWaiting.get(cc);
+  }
+  async function flagFile(cc) {
+    for (const f of [path.join(root, 'assets', 'flags', cc + '.png'), path.join(dataDir, 'flags', cc + '.png')]) if (fs.existsSync(f)) return f;
+    return downloadFlag(cc);
+  }
+
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
     const p = decodeURIComponent(url.pathname);
@@ -115,6 +150,31 @@ function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-t
       const ping = setInterval(() => res.write(': ping\n\n'), 15000);
       req.on('close', () => { clearInterval(ping); clients.delete(res); });
       return;
+    }
+    let fm;
+    if ((fm = p.match(/^\/flag\/([a-z]{2})$/))) {
+      flagFile(fm[1]).then((f) => (f ? sendFile(res, f, true) : (res.writeHead(404), res.end('no flag'))));
+      return;
+    }
+    if (p === '/settings' && req.method === 'GET') return json(res, 200, { startggToken: !!readSettings().startggToken });
+    if (p === '/settings' && req.method === 'POST') {
+      return readBody(req, (b) => {
+        if (!b) return json(res, 400, { error: 'bad json' });
+        const s = readSettings();
+        if (typeof b.startggToken === 'string') s.startggToken = b.startggToken.trim();
+        try { fs.writeFileSync(settingsFile, JSON.stringify(s, null, 2)); } catch (e) { return json(res, 500, { error: 'could not save the settings' }); }
+        json(res, 200, { startggToken: !!s.startggToken });
+      });
+    }
+    if (p === '/import/startgg' && req.method === 'POST') {
+      return readBody(req, async (b) => {
+        if (!b) return json(res, 400, { error: 'bad json' });
+        try {
+          const result = await startgg.importTop8(b.link, readSettings().startggToken, fighters(), fetchImpl);
+          result.entries.forEach((e) => { if (e.country) flagFile(e.country); });   // warm the flag cache
+          json(res, 200, result);
+        } catch (e) { json(res, 400, { error: e.message }); }
+      });
     }
     if (p === '/characters') return sendFile(res, path.join(root, 'assets', 'characters.json'), false);
     let m;

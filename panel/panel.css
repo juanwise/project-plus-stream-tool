@@ -20,8 +20,8 @@ main { padding: 16px 18px 40px; max-width: 1180px; margin: 0 auto; }
 .tabpane { display: none; } .tabpane.active { display: block; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
 .card h3 { margin: 0 0 6px; color: var(--lime); }
-input[type=text], select { width: 100%; background: #031008; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; }
-input[type=text]:focus, select:focus { outline: 2px solid var(--green); border-color: transparent; }
+input[type=text], input[type=password], select { width: 100%; background: #031008; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; }
+input[type=text]:focus, input[type=password]:focus, select:focus { outline: 2px solid var(--green); border-color: transparent; }
 label { display: block; color: var(--muted); font-size: 12px; font-weight: 600; } label input, label select { margin-top: 3px; color: var(--text); }
 .check { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 14px; margin-top: 6px; } .check input { width: 18px; height: 18px; accent-color: #1ee27a; }
 .matchbar { display: grid; grid-template-columns: 1.4fr 1fr auto auto; gap: 14px; align-items: end; }
@@ -41,9 +41,9 @@ label { display: block; color: var(--muted); font-size: 12px; font-weight: 600; 
 .scorebox { display: flex; align-items: center; gap: 10px; margin-top: 12px; } .scorebox .num { flex: 1; text-align: center; font-size: 44px; font-weight: 900; color: var(--lime); line-height: 1; }
 .scorebox button { width: 56px; height: 48px; font-size: 24px; font-weight: 800; padding: 0; } .scorebox button.plus { background: var(--green); color: #03150a; border: 0; }
 .rows { display: flex; flex-direction: column; gap: 8px; }
-.entry { display: grid; grid-template-columns: 36px 90px 1.4fr 1.2fr 80px 44px; gap: 8px; align-items: center; } .entry .place { font-size: 20px; font-weight: 900; color: var(--lime); text-align: center; }
+.entry { display: grid; grid-template-columns: 36px 80px 1.3fr 1.1fr 1.1fr 70px 44px; gap: 8px; align-items: center; } .entry .place { font-size: 20px; font-weight: 900; color: var(--lime); text-align: center; }
 .entry img.ic { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #031008; border: 1px solid var(--line); }
-.nextp { display: grid; grid-template-columns: 90px 1.4fr 1.2fr 80px 44px; gap: 8px; align-items: center; }
+.importrow { display: flex; gap: 8px; margin-bottom: 8px; } .importrow input { flex: 1; }
 .wide { margin-bottom: 10px; max-width: 360px; } .row-actions { display: flex; gap: 10px; margin-top: 12px; }
 #urls .url { display: flex; gap: 10px; align-items: center; margin: 8px 0; } #urls .url b { width: 110px; } #urls code { flex: 1; }
 code { background: #031008; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; color: var(--lime); word-break: break-all; }

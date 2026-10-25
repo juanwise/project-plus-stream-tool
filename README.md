@@ -13,7 +13,7 @@ Green theme with plus-sign patterns. Windows program (Electron), nothing to inst
    | VS screen | `http://localhost:3939/overlays/vs.html` |
    | Scoreboard | `http://localhost:3939/overlays/scoreboard.html` |
    | Top 8 | `http://localhost:3939/overlays/top8.html` |
-   | Next match | `http://localhost:3939/overlays/next.html` |
+   | Waiting for next game | `http://localhost:3939/overlays/waiting.html` |
 
    Tick *Shutdown source when not visible* and *Refresh browser when scene becomes active* so the intro animations play whenever the overlay is shown.
 3. Fill in the match on the panel and press **Update** (`Ctrl+Enter`). Scores, best of, Grand Finals and the mirror switch apply immediately.
@@ -22,8 +22,8 @@ Green theme with plus-sign patterns. Windows program (Electron), nothing to inst
 
 - **Match**: tournament, round, best of 3 / 5, both players (team tag, name, character, costume, score), swap players, reset scores.
 - **Grand Finals / bracket reset**: tick *Grand Finals* (put the winners-side player as Player 1). If the losers-side player wins the first set, press **Bracket reset**: scores go back to 0-0 and the overlays show "Grand Finals Reset". The button toggles if you pressed it by mistake.
-- **Top 8**: eight rows with tag, name, character and costume.
-- **Next match**: the upcoming round and players for the "Up next" overlay. *Make this the current match* moves them to the Match tab (scores reset to 0-0).
+- **Top 8**: type the eight players or **import them from Start.gg**: paste the event link (`https://www.start.gg/tournament/.../event/...`) and press *Import top 8*. It needs a free Start.gg API token (start.gg → your profile → Developer Settings → Create new token), which is saved only on your computer. Names, tags and countries come from Start.gg; characters are the most played one in the games reported on Start.gg, so they are empty when the event did not report characters. Flags are downloaded the first time they are needed and cached in `stream-tool-data/flags`. Check the result and press *Update*.
+- **Waiting for next game** is a full-screen green overlay with plus signs: show it between games.
 - The scoreboard shows win pips for first to 2 (best of 3) or first to 3 (best of 5).
 
 ### Your own or bigger art

@@ -13,19 +13,19 @@
   .face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
   .plate { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: center; padding: 0 24px; min-width: 0; background: linear-gradient(90deg, #031008, #07482a 70%, #0b8a4b); border-top: 5px solid var(--lime); }
   #side2 .plate { align-items: flex-end; background: linear-gradient(270deg, #031008, #07482a 70%, #0b8a4b); }
-  .line { display: inline-flex; align-items: baseline; max-width: 100%; overflow: hidden; }
+  .line { display: inline-flex; align-items: center; height: 58px; max-width: 100%; overflow: hidden; }
   #img2.mirror { transform: scaleX(-1); }
-  .team { color: var(--lime); font-size: 28px; margin-right: 12px; }
+  .team { color: var(--lime); font-size: 28px; line-height: 58px; margin-right: 12px; }
   .team:empty { display: none; }
   .team.has::after { content: "|"; margin-left: 12px; color: var(--mint); opacity: .55; }
   .name { font-size: 50px; font-weight: 900; line-height: 58px; letter-spacing: -.5px; }
-  .charname { font-size: 20px; color: var(--muted); letter-spacing: 3px; line-height: 24px; }
+  .charname { font-size: 20px; color: var(--muted); letter-spacing: 3px; height: 24px; line-height: 24px; }
   .score { width: 112px; height: 120px; flex: none; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;
     font-size: 84px; font-weight: 900; color: #03150a; background: linear-gradient(160deg, #b6ff7a, #1ee27a); border-top: 5px solid #e9ffd0; }
   .score span { display: block; line-height: 1; }
   #side1 .plate { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
   .pips { position: absolute; top: 128px; display: flex; gap: 8px; z-index: 1; }
-  #pips1 { left: 132px; } #pips2 { right: 132px; }
+  #pips1 { left: 132px; } #pips2 { right: 132px; flex-direction: row-reverse; }   /* player 2's pips fill from the outside in, like a mirror image */
   .pip { width: 34px; height: 34px; }
   .pip path { fill: rgba(3,16,8,.55); stroke: rgba(200,255,227,.5); stroke-width: 5; stroke-linejoin: round; }
   .pip.on path { fill: var(--lime); stroke: #031008; stroke-width: 7; }
@@ -68,9 +68,9 @@
 
   function fit(n) {
     const name = $('name' + n), team = $('team' + n), line = name.parentElement, avail = line.parentElement.clientWidth - 48;
-    let size = 50; name.style.fontSize = ''; team.style.fontSize = ''; name.style.lineHeight = '';
+    let size = 50; name.style.fontSize = ''; team.style.fontSize = '';
     while (line.scrollWidth > avail && size > 18) {
-      size -= 2; name.style.fontSize = size + 'px'; team.style.fontSize = Math.round(size * .56) + 'px'; name.style.lineHeight = Math.round(size * 1.16) + 'px';
+      size -= 2; name.style.fontSize = size + 'px'; team.style.fontSize = Math.round(size * .56) + 'px';
     }
   }
 

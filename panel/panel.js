@@ -7,6 +7,17 @@
   const ROUNDS = ['Pools', 'Winners Round 1', 'Winners Round 2', 'Winners Quarters', 'Winners Semis', 'Winners Finals',
     'Losers Round 1', 'Losers Round 2', 'Losers Round 3', 'Losers Quarters', 'Losers Semis', 'Losers Finals', 'Grand Finals', 'Top 8', 'Friendlies'];
 
+  const COUNTRIES = (() => {
+    try {
+      const dn = new Intl.DisplayNames(['en'], { type: 'region' }), out = [];
+      for (let a = 65; a <= 90; a++) for (let b = 65; b <= 90; b++) {
+        const c = String.fromCharCode(a, b); let n; try { n = dn.of(c); } catch (e) { continue; }
+        if (n && n !== c) out.push([c.toLowerCase(), n]);
+      }
+      return out.sort((x, y) => x[1].localeCompare(y[1]));
+    } catch (e) { return []; }
+  })();
+
   let chars = [], live = null, draft = null;
 
   const get = (o, path) => path.split('.').reduce((v, k) => (v == null ? v : v[k]), o);
@@ -56,28 +67,18 @@
     return `<div class="entry">${place ? `<div class="place">${place}</div>` : ''}
       <input type="text" data-path="${path}.team" placeholder="Tag">
       <input type="text" data-path="${path}.name" placeholder="Player name">
+      <select data-path="${path}.country" class="country"><option value="">- country -</option>${COUNTRIES.map(([c, n]) => `<option value="${c}">${n}</option>`).join('')}</select>
       ${charSelect(path)}
       <select data-path="${path}.alt" data-altfor="${path}"></select>
       <img class="ic" data-icon="${path}" alt="">
     </div>`;
   }
-  function nextRow(path) {
-    return `<div class="nextp">
-      <input type="text" data-path="${path}.team" placeholder="Tag">
-      <input type="text" data-path="${path}.name" placeholder="Player name">
-      ${charSelect(path)}
-      <select data-path="${path}.alt" data-altfor="${path}"></select>
-      <img class="ic" data-icon="${path}" alt="" style="width:40px;height:40px;border-radius:6px;object-fit:cover;background:#031008">
-    </div>`;
-  }
-
   function build() {
     $('#rounds').innerHTML = ROUNDS.map((r) => `<option value="${r}">`).join('');
     $('#player0').innerHTML = playerCard(0);
     $('#player1').innerHTML = playerCard(1);
     $('#top8rows').innerHTML = draft.top8.map((_, i) => entryRow(`top8.${i}`, i + 1)).join('');
-    $('#nextrows').innerHTML = `<div style="color:var(--muted);font-size:12px">Player 1</div>${nextRow('next.p1')}<div style="color:var(--muted);font-size:12px;margin-top:6px">Player 2</div>${nextRow('next.p2')}`;
-    $('#urls').innerHTML = [['VS screen', 'vs'], ['Scoreboard', 'scoreboard'], ['Top 8', 'top8'], ['Next match', 'next']].map(([n, f]) =>
+    $('#urls').innerHTML = [['VS screen', 'vs'], ['Scoreboard', 'scoreboard'], ['Top 8', 'top8'], ['Waiting for next game', 'waiting']].map(([n, f]) =>
       `<div class="url"><b>${n}</b><code>${location.origin}/overlays/${f}.html</code><button data-copy="${location.origin}/overlays/${f}.html">Copy</button><button data-open="/overlays/${f}.html">Open</button></div>`).join('');
     const dd = new URLSearchParams(location.search).get('dataDir');
     if (dd) $('#artDir').textContent = dd.replace(/[\\/]+$/, '') + '/custom-art/<fighter>/<costume number>.png';
@@ -164,14 +165,31 @@
     draft.players.forEach((p) => Object.assign(p, { name: '', team: '', character: '', alt: 1 }));
     syncControls();
   });
-  $('#promote').addEventListener('click', () => {
-    [draft.next.p1, draft.next.p2].forEach((n, i) => Object.assign(draft.players[i], { name: n.name, team: n.team, character: n.character, alt: n.alt, score: 0 }));
-    draft.round = draft.next.round; draft.grandFinals.reset = false; syncControls();
+  // ---------- Start.gg import ----------
+  const sggMsg = (t, bad) => { const m = $('#sggMsg'); m.textContent = t; m.style.color = bad ? '#ff9b8a' : ''; };
+  $('#sggSave').addEventListener('click', async () => {
+    const token = $('#sggToken').value.trim();
+    await fetch('/settings', { method: 'POST', body: JSON.stringify({ startggToken: token }) });
+    $('#sggToken').value = ''; $('#sggToken').placeholder = token ? 'Token saved (type a new one to replace it)' : 'Start.gg API token (saved on this computer)';
+    sggMsg(token ? 'Token saved.' : 'Token removed.');
   });
-  $('#fromCurrent').addEventListener('click', () => {
-    [draft.next.p1, draft.next.p2].forEach((n, i) => { const p = draft.players[i]; Object.assign(n, { name: p.name, team: p.team, character: p.character, alt: p.alt }); });
-    draft.next.round = draft.round; syncControls();
+  $('#sggImport').addEventListener('click', async () => {
+    const typed = $('#sggToken').value.trim();
+    if (typed) { await fetch('/settings', { method: 'POST', body: JSON.stringify({ startggToken: typed }) }); $('#sggToken').value = ''; $('#sggToken').placeholder = 'Token saved (type a new one to replace it)'; }
+    sggMsg('Asking Start.gg...'); $('#sggImport').disabled = true;
+    try {
+      const r = await fetch('/import/startgg', { method: 'POST', body: JSON.stringify({ link: $('#sggLink').value }) });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Import failed');
+      draft.top8.forEach((_, i) => { draft.top8[i] = Object.assign({ name: '', team: '', country: '', character: '', alt: 1 }, data.entries[i] ? { name: data.entries[i].name, team: data.entries[i].team, country: data.entries[i].country, character: data.entries[i].character, alt: 1 } : {}); });
+      if (data.tournament && !draft.tournament) draft.tournament = data.tournament;
+      syncControls();
+      sggMsg(`Imported ${data.entries.length} players. Check them and press Update.` + (data.notes.length ? ' ' + data.notes.join(' ') : ''), data.notes.length > 0);
+    } catch (e) { sggMsg(e.message, true); }
+    $('#sggImport').disabled = false;
   });
+  fetch('/settings').then((r) => r.json()).then((s) => { if (s.startggToken) $('#sggToken').placeholder = 'Token saved (type a new one to replace it)'; }).catch(() => {});
+
   $('#update').addEventListener('click', () => { send(clone(draft)); });
   document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); send(clone(draft)); } });
 

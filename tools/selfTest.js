@@ -12,7 +12,7 @@ const { startServer, defaultState } = require('../server');
   const get = async (p) => { const r = await fetch(base + p); if (!r.ok) fail(`${p} -> ${r.status}`); return r; };
 
   for (const p of ['/panel/', '/panel/panel.js', '/panel/panel.css', '/overlays/vs.html', '/overlays/scoreboard.html', '/overlays/top8.html',
-    '/overlays/next.html', '/overlays/common.js', '/overlays/theme.css', '/assets/fonts/Inter-Black.otf', '/characters', '/art/mario/1', '/icon/mario/1']) await get(p);
+    '/overlays/waiting.html', '/overlays/common.js', '/overlays/theme.css', '/assets/fonts/Inter-Black.otf', '/characters', '/art/mario/1', '/icon/mario/1']) await get(p);
 
   const chars = await (await get('/characters')).json();
   if (chars.length < 40) fail('fewer than 40 fighters');
