@@ -19,6 +19,9 @@
   .row { position: absolute; left: 0; right: 0; top: 14px; height: 90px; display: flex; align-items: center; }
   #txt1 .row { justify-content: flex-start; } #txt2 .row { justify-content: flex-end; }
   .line { display: inline-flex; align-items: center; max-width: 800px; }
+  .flag { display:block; width:64px; height:42px; object-fit:cover; margin:0 14px; border:3px solid rgba(255,255,255,.88); border-radius:3px; box-shadow:0 3px 8px rgba(0,0,0,.65); flex:none; }
+  .flag.none { display:none; }
+  #txt2 .flag { order: 2; }
   .name { font-size: 78px; font-weight: 900; line-height: 90px; letter-spacing: -1px; }
   .team { color: var(--lime); font-weight: 800; margin-right: 18px; font-size: 54px; line-height: 90px; }
   .team:empty { display: none; }
@@ -56,8 +59,8 @@
     <div id="bestof"></div>
   </div>
 
-  <div id="txt1" class="txt"><div class="row"><div class="line"><span id="team1" class="team"></span><span id="name1" class="name"></span></div></div><div id="char1" class="char"></div></div>
-  <div id="txt2" class="txt"><div class="row"><div class="line"><span id="team2" class="team"></span><span id="name2" class="name"></span></div></div><div id="char2" class="char"></div></div>
+  <div id="txt1" class="txt"><div class="row"><div class="line"><span id="team1" class="team"></span><img id="flag1" class="flag none" alt="" /><span id="name1" class="name"></span></div></div><div id="char1" class="char"></div></div>
+  <div id="txt2" class="txt"><div class="row"><div class="line"><span id="team2" class="team"></span><span id="name2" class="name"></span><img id="flag2" class="flag none" alt="" /></div></div><div id="char2" class="char"></div></div>
 
 <script src="themes.js"></script>
 <script src="common.js"></script>
@@ -95,7 +98,7 @@
   // text boxes follow the plate: top of the plate + same offsets on both sides
   ['txt1', 'txt2'].forEach((id) => { $(id).style.top = '886px'; $(id).style.height = '144px'; });
 
-  const side = (p) => ({ name: p.name, team: p.team, character: p.character, alt: p.alt });
+  const side = (p) => ({ name: p.name, team: p.team, country: p.country, character: p.character, alt: p.alt });
   function fitName(n) {   // shrink long "team | name" lines so they stay inside the plate
     const name = $('name' + n), team = $('team' + n), line = name.parentElement;
     let size = 78;
@@ -112,6 +115,9 @@
       const changed = !prev || !PP.same(side(p), side(prev.players[i])) || s.mirrorPlayer2 !== prev.mirrorPlayer2;
       PP.setText($('name' + n), p.name);
       PP.setText($('team' + n), p.team);
+      const flag = $('flag' + n);
+      flag.onerror = () => flag.classList.add('none');
+      if (p.country) { flag.classList.remove('none'); PP.setImg(flag, '/flag/' + p.country); } else { flag.classList.add('none'); PP.setImg(flag, ''); }
       $('team' + n).classList.toggle('has', !!p.team);
       PP.setText($('char' + n), PP.charName(p.character));
       PP.setImg($('img' + n), PP.art(p.character, p.alt));

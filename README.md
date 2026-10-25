@@ -13,7 +13,8 @@ Green theme with plus-sign patterns. Windows program (Electron), nothing to inst
    | VS screen | `http://localhost:3939/overlays/vs.html` |
    | Scoreboard | `http://localhost:3939/overlays/scoreboard.html` |
    | Top 8 | `http://localhost:3939/overlays/top8.html` |
-   | Bracket | `http://localhost:3939/overlays/bracket.html` |
+   | Full Bracket | `http://localhost:3939/overlays/bracket.html?view=full` |
+   | Top 8 Bracket | `http://localhost:3939/overlays/bracket.html?view=top8` |
    | Waiting for next game | `http://localhost:3939/overlays/waiting.html` |
 
    Tick *Shutdown source when not visible* and *Refresh browser when scene becomes active* so the intro animations play whenever the overlay is shown.
@@ -21,11 +22,12 @@ Green theme with plus-sign patterns. Windows program (Electron), nothing to inst
 
 ### Panel
 
-- **Match**: tournament, round, best of 3 / 5, both players (team tag, name, character, costume, score), swap players, reset scores.
+- **Match**: tournament, round, best of 3 / 5, both players (team tag, name, country flag, character, costume, score), swap players, reset scores.
 - **Grand Finals / bracket reset**: tick *Grand Finals* (put the winners-side player as Player 1). If the losers-side player wins the first set, press **Bracket reset**: scores go back to 0-0 and the overlays show "Grand Finals Reset". The button toggles if you pressed it by mistake.
 - **Top 8**: type the eight players or **import them from Start.gg**: paste the event link (`https://www.start.gg/tournament/.../event/...`) and press *Import top 8*. It needs a free Start.gg API token (start.gg → your profile → Developer Settings → Create new token), which is saved only on your computer. Names, tags and countries come from Start.gg; characters are the most played one in the games reported on Start.gg, so they are empty when the event did not report characters. Flags are downloaded the first time they are needed and cached in `stream-tool-data/flags`. Check the result and press *Update*.
-- **Bracket**: paste the Start.gg event link and press **Update bracket**. The overlay shows the end of the double elimination bracket laid out like Start.gg (rounds from left to right, winners on top, losers below, grand final after the winners, lines joining each set to the next) as it is on Start.gg *when you press the button*; press it again after each set. *Top 16*, *Top 8* or *Top 4* chooses how many rounds are shown. Uses the same API token.
-- **Overlays tab**: pick one of 9 colour themes for each overlay (Green, Teal, Blue, Purple, Pink, Red, Orange, Gold, Steel), and **Import logo** to put your logo on every overlay, unchanged by the themes.
+- **Bracket**: two separate sections, each with its own Start.gg link and **Update** button. **Full Bracket** shows the whole bracket of the link you give it (rounds from left to right, winners on top, losers below, grand final after the winners, lines joining each set to the next); **Top 8 Bracket** does the same for a second link, usually the Top 8 phase. A bracket URL like `.../event/<event>/brackets/<phase>/<group>` imports exactly that group; an event link picks the double elimination phase. The overlays show the bracket as it is on Start.gg *when you press the button*; press it again after each set. Uses the same API token.
+- **Overlays tab**: pick one of 12 colour themes for each overlay (Green, Teal, Blue, Purple, Pink, Red, Orange, Gold, Steel, Crimson, Ice Blue, Violet), and **Import logo** to put your logo on every overlay, unchanged by the themes.
+- **Thumbnails tab**: builds a 1280 x 720 YouTube thumbnail of the current match (no scores): theme or your own background, five VS logo styles, fonts, text outlines, flags, and sliders for the size and position of the logo, characters, names and character names. Five layout profiles can be saved (they stay on this computer); *Generate thumbnail*, then *Download PNG*.
 - **Waiting for next game** is a full-screen green overlay with plus signs: show it between games.
 - The scoreboard shows win pips for first to 2 (best of 3) or first to 3 (best of 5).
 

@@ -23,7 +23,7 @@ const MIME = {
   '.otf': 'font/otf', '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.svg': 'image/svg+xml',
 };
 
-const emptyPlayer = () => ({ name: '', team: '', character: '', alt: 1, score: 0 });
+const emptyPlayer = () => ({ name: '', team: '', country: '', character: '', alt: 1, score: 0 });
 const emptyEntry = () => ({ name: '', team: '', country: '', character: '', alt: 1 });
 
 function defaultState() {
@@ -36,6 +36,9 @@ function defaultState() {
     players: [emptyPlayer(), emptyPlayer()],
     top8: Array.from({ length: 8 }, emptyEntry),
     bracketDepth: 8,
+    bracketView: 'full',
+    bracketFull: null,
+    bracketTop8: null,
     themes: {},
     logo: 0,
     bracket: null,
@@ -53,11 +56,15 @@ function normalize(input) {
   delete s.next;   // the old "up next" overlay no longer exists
   s.bestOf = Number(s.bestOf) === 5 ? 5 : 3;
   s.bracketDepth = [4, 16].includes(Number(s.bracketDepth)) ? Number(s.bracketDepth) : 8;
+  s.bracketView = s.bracketView === 'top8' ? 'top8' : 'full';
+  if (!s.bracketFull || typeof s.bracketFull !== 'object') s.bracketFull = null;
+  if (!s.bracketTop8 || typeof s.bracketTop8 !== 'object') s.bracketTop8 = null;
+  s.bracket = s.bracketView === 'top8' ? s.bracketTop8 : s.bracketFull || s.bracket;
   s.themes = Object.assign({}, s.themes && typeof s.themes === 'object' ? s.themes : {});
   for (const k of Object.keys(s.themes)) if (!/^[a-z]{2,12}$/.test(String(s.themes[k]))) delete s.themes[k];
   s.logo = Number(s.logo) > 0 ? Number(s.logo) : 0;
   if (!s.bracket || typeof s.bracket !== 'object') s.bracket = null;
-  s.players.forEach((p) => { p.score = Math.max(0, parseInt(p.score, 10) || 0); p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
+  s.players.forEach((p) => { p.country = /^[a-z]{2}$/i.test(p.country || '') ? p.country.toLowerCase() : ''; p.score = Math.max(0, parseInt(p.score, 10) || 0); p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
   s.top8.forEach((p) => { p.country = /^[a-z]{2}$/i.test(p.country || '') ? p.country.toLowerCase() : ''; p.alt = Math.max(1, parseInt(p.alt, 10) || 1); });
   return s;
 }
@@ -148,7 +155,7 @@ function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-t
       let body = '';
       req.on('data', (c) => { body += c; if (body.length > 1e6) req.destroy(); });
       req.on('end', () => {
-        try { const keep = { bracket: state.bracket, logo: state.logo }; state = Object.assign(normalize(JSON.parse(body)), keep); } catch (e) { res.writeHead(400); return res.end('bad json'); }   // bracket and logo are changed only by their own buttons
+        try { const keep = { bracket: state.bracket, bracketFull: state.bracketFull, bracketTop8: state.bracketTop8, bracketView: state.bracketView, logo: state.logo }; state = Object.assign(normalize(JSON.parse(body)), keep); } catch (e) { res.writeHead(400); return res.end('bad json'); }   // bracket and logo are changed only by their own buttons
         save(); broadcast();
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(state));
@@ -192,9 +199,21 @@ function startServer({ port = 3939, dataDir = path.join(process.cwd(), 'stream-t
       return readBody(req, async (b) => {
         if (!b) return json(res, 400, { error: 'bad json' });
         try {
-          state.bracket = await startgg.importBracket(b.link, readSettings().startggToken, fetchImpl);
+          const view = b.view === 'top8' ? 'top8' : 'full';
+          const imported = await startgg.importBracket(b.link, readSettings().startggToken, fetchImpl);
+          if (view === 'top8') state.bracketTop8 = imported; else state.bracketFull = imported;
+          state.bracketView = view;
+          state.bracket = view === 'top8' ? state.bracketTop8 : state.bracketFull;
           save(); broadcast(); json(res, 200, { bracket: state.bracket });
         } catch (e) { json(res, 400, { error: e.message }); }
+      });
+    }
+    if (p === '/bracket/view' && req.method === 'POST') {
+      return readBody(req, async (b) => {
+        const view = b && b.view === 'top8' ? 'top8' : 'full';
+        state.bracketView = view;
+        state.bracket = view === 'top8' ? state.bracketTop8 : state.bracketFull;
+        save(); broadcast(); json(res, 200, { bracket: state.bracket, view });
       });
     }
     if (p === '/logo' && req.method === 'GET') {

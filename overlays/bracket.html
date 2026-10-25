@@ -30,9 +30,9 @@
 </head>
 <body>
   <div class="pp-bg"></div>
-  <div id="title"><div id="titlelogo"></div><div><h1>Bracket</h1><div id="tournament"></div></div><div id="titlelogo2"></div></div>
+  <div id="title"><div id="titlelogo"></div><div><h1 id="bracketTitle">Full Bracket</h1><div id="tournament"></div></div><div id="titlelogo2"></div></div>
   <div id="stage"><svg id="lines" viewBox="0 0 1920 1080"></svg><div id="boxes"></div></div>
-  <div id="empty">Press "Update bracket" on the panel</div>
+  <div id="empty">Import a bracket link from the panel</div>
 
 <script src="themes.js"></script>
 <script src="common.js"></script>
@@ -67,10 +67,16 @@
     if (!b) { boxes.innerHTML = ''; lines.innerHTML = ''; return; }
     const depth = s.bracketDepth === 16 ? 16 : s.bracketDepth === 4 ? 4 : 8;
     const wn = { 16: 3, 8: 2, 4: 1 }[depth], ln = { 16: 6, 8: 4, 4: 2 }[depth];
-    const wCols = (b.winners || []).slice(-wn).map((r) => ({ text: r.text, sets: r.sets }));
+    const fullView = (s.bracketView || 'full') === 'full';
+    // Full Bracket deliberately stops before Top 8. Top 8 is imported from its own link.
+    const winnersSource = b.winners || [];
+    const losersSource = b.losers || [];
+    const wCols = winnersSource.map((r) => ({ text: r.text, sets: r.sets }));
     (b.gf || []).slice(0, 2).forEach((g, i) => wCols.push({ text: i ? 'Grand Final Reset' : 'Grand Final', sets: [g] }));
-    const lCols = (b.losers || []).slice(-ln).map((r) => ({ text: r.text, sets: r.sets }));
+    const lCols = losersSource.map((r) => ({ text: r.text, sets: r.sets }));
     const sections = [{ name: 'w', cols: wCols }, { name: 'l', cols: lCols }].filter((x) => x.cols.length);
+    if (!sections.length) { boxes.innerHTML = ''; lines.innerHTML = ''; $('empty').textContent = 'No matches were returned for this bracket'; $('empty').style.display = 'block'; return; }
+    $('empty').textContent = 'Import a bracket link from the panel';
     const ncols = Math.max(...sections.map((x) => x.cols.length));
     const boxW = Math.min(300, Math.floor((1800 - (ncols - 1) * GAP) / ncols));
     const x0 = Math.round((1920 - (ncols * boxW + (ncols - 1) * GAP)) / 2);
@@ -109,15 +115,19 @@
     });
   }
 
+  const overlayView = new URLSearchParams(location.search).get('view') === 'top8' ? 'top8' : 'full';
+  $('bracketTitle').textContent = overlayView === 'top8' ? 'Top 8 Bracket' : 'Full Bracket';
   let lastKey = '';
-  PP.onState((s) => {
+  PP.onState((state) => {
+    const selectedBracket = overlayView === 'top8' ? (state.bracketTop8 || (state.bracketView === 'top8' ? state.bracket : null)) : (state.bracketFull || (state.bracketView !== 'top8' ? state.bracket : null));
+    const s = Object.assign({}, state, { bracket:selectedBracket });
     window.__s = s;
     ['titlelogo', 'titlelogo2'].forEach((id) => {
       const want = PP.logoSrc ? 'logo:' + PP.logoSrc : 'plus', el = $(id);
       if (el.dataset.kind !== want) { el.dataset.kind = want; el.innerHTML = PP.logoSrc ? `<img class="ul" src="${PP.logoSrc}" alt="">` : PP.plusSvg(100); }
     });
     PP.setText($('tournament'), s.tournament || (s.bracket && s.bracket.tournament) || ' ');
-    const key = JSON.stringify([s.bracket, s.bracketDepth]);
+    const key = JSON.stringify([s.bracket, s.bracketDepth, s.bracketView]);
     if (key === lastKey) return;
     lastKey = key; draw(s);
     document.querySelectorAll('#boxes .set, #boxes .hd').forEach((el) => PP.slideIn(el, 'left', 40 + Number(el.dataset.col) * 120));

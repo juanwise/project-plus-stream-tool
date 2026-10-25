@@ -15,6 +15,8 @@
   #side2 .plate { align-items: flex-end; background: linear-gradient(270deg, var(--ink), var(--mid) 70%, var(--card1)); }
   .line { display: inline-flex; align-items: center; height: 58px; max-width: 100%; overflow: hidden; }
   #img2.mirror { transform: scaleX(-1); }
+  .flag { display:block; width:42px; height:28px; object-fit:cover; margin:0 9px; border:2px solid rgba(255,255,255,.8); border-radius:2px; box-shadow:0 2px 5px rgba(0,0,0,.6); flex:none; }
+  .flag.none { display:none; }
   .team { color: var(--lime); font-size: 28px; line-height: 58px; margin-right: 12px; }
   .team:empty { display: none; }
   .team.has::after { content: "|"; margin-left: 12px; color: var(--mint); opacity: .55; }
@@ -48,14 +50,14 @@
   <div id="bar">
     <div id="side1" class="side">
       <div class="face"><img id="img1" alt=""></div>
-      <div class="plate"><div class="line"><span id="team1" class="team"></span><span id="name1" class="name"></span></div><div id="char1" class="charname"></div></div>
+      <div class="plate"><div class="line"><span id="team1" class="team"></span><img id="flag1" class="flag none" alt="" /><span id="name1" class="name"></span></div><div id="char1" class="charname"></div></div>
       <div class="score"><span id="score1">0</span></div>
       <div id="pips1" class="pips"></div>
     </div>
     <div id="center"><div id="logo"></div><div id="round"></div><div id="bestof"></div></div>
     <div id="side2" class="side">
       <div class="face"><img id="img2" alt=""></div>
-      <div class="plate"><div class="line"><span id="team2" class="team"></span><span id="name2" class="name"></span></div><div id="char2" class="charname"></div></div>
+      <div class="plate"><div class="line"><span id="team2" class="team"></span><span id="name2" class="name"></span><img id="flag2" class="flag none" alt="" /></div><div id="char2" class="charname"></div></div>
       <div class="score"><span id="score2">0</span></div>
       <div id="pips2" class="pips"></div>
     </div>
@@ -67,7 +69,7 @@
   const $ = (id) => document.getElementById(id);
   $('logo').innerHTML = PP.plusSvg(60);
   const PIP = '<svg class="pip %C" viewBox="0 0 100 100"><path d="M34 6h32v28h28v32H66v28H34V66H6V34h28z"/></svg>';
-  const side = (p) => ({ name: p.name, team: p.team, character: p.character, alt: p.alt });
+  const side = (p) => ({ name: p.name, team: p.team, country: p.country, character: p.character, alt: p.alt });
 
   function fit(n) {
     const name = $('name' + n), team = $('team' + n), line = name.parentElement, avail = line.parentElement.clientWidth - 48;
@@ -84,6 +86,9 @@
       const n = i + 1, p = s.players[i];
       PP.setText($('name' + n), p.name);
       PP.setText($('team' + n), p.team);
+      const flag = $('flag' + n);
+      flag.onerror = () => flag.classList.add('none');
+      if (p.country) { flag.classList.remove('none'); PP.setImg(flag, '/flag/' + p.country); } else { flag.classList.add('none'); PP.setImg(flag, ''); }
       $('team' + n).classList.toggle('has', !!p.team);
       PP.setText($('char' + n), PP.charName(p.character));
       PP.setImg($('img' + n), PP.art(p.character, p.alt));

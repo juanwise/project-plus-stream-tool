@@ -15,6 +15,7 @@
     <button class="tab" data-tab="top8">Top 8</button>
     <button class="tab" data-tab="bracket">Bracket</button>
     <button class="tab" data-tab="overlays">Overlays</button>
+    <button class="tab" data-tab="thumbnails">Thumbnails</button>
   </nav>
   <div class="actions">
     <span id="status" class="status off" title="Connection to the overlay server">offline</span>
@@ -65,9 +66,10 @@
   <section id="tab-bracket" class="tabpane">
     <div class="card">
       <h3>Bracket from Start.gg</h3>
-      <div class="importrow"><input id="brLink" type="text" placeholder="https://www.start.gg/tournament/.../event/..."><button id="brUpdate" class="primary">Update bracket</button></div>
-      <div class="field"><span>Show</span><div class="seg" id="brDepth"><button data-v="16">Top 16</button><button data-v="8">Top 8</button><button data-v="4">Top 4</button></div></div>
-      <p class="hint" id="brMsg">Paste the event link and press <b>Update bracket</b>. The overlay changes only when you press the button, so press it again after each set. Uses the API token from the Top 8 tab.</p>
+      <div class="field"><span>Overlay section</span><div class="seg" id="brView"><button data-v="full">Full Bracket</button><button data-v="top8">Top 8</button></div></div>
+      <div class="importrow"><input id="brFullLink" type="text" placeholder="Full event bracket link"><button id="brFullUpdate" class="primary">Update Full Bracket</button></div>
+      <div class="importrow"><input id="brTop8Link" type="text" placeholder="Separate Top 8 bracket link"><button id="brTop8Update" class="primary">Update Top 8</button></div>
+      <p class="hint" id="brMsg">Enter a separate Start.gg event link for each section. Full Bracket shows rounds before Top 8; Top 8 shows the complete bracket from its own link. Uses the API token from the Top 8 tab.</p>
     </div>
   </section>
 
@@ -93,6 +95,72 @@
       <p>For example <code>custom-art/mario/1.png</code>. Fighter names are the lowercase names with underscores (<code>king_dedede</code>, <code>mr_game_and_watch</code>, <code>rob</code>). PNG, WebP or JPG; transparent background; any size. Same for icons in <code>custom-icons</code>. Press F5 on the overlay (or refresh the OBS source) to load new images.</p>
     </div>
   </section>
+  <!-- THUMBNAILS -->
+  <section id="tab-thumbnails" class="tabpane">
+    <div class="card">
+      <h3>YouTube Thumbnail Creator</h3>
+      <p class="hint">Create a 1280 × 720 thumbnail from the current match. Scores are not included.</p>
+      <div class="field"><span>Default background theme</span><select id="thumbTheme"></select></div>
+      <div class="field"><span>Font</span><select id="thumbFont">
+        <option value="Arial">Arial — clean</option><option value="Impact">Impact — bold</option>
+        <option value="Trebuchet MS">Trebuchet MS — modern</option><option value="Verdana">Verdana — readable</option>
+        <option value="Georgia">Georgia — serif</option><option value="Tahoma">Tahoma — compact</option>
+        <option value="Courier New">Courier New — arcade</option><option value="Comic Sans MS">Comic Sans MS — playful</option>
+        <option value="Arial Black">Arial Black — heavy</option><option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+        <option value="Gill Sans">Gill Sans</option><option value="Impact, Haettenschweiler, Arial Narrow Bold, sans-serif">Impact / condensed</option>
+        <option value="Palatino Linotype">Palatino Linotype</option><option value="Lucida Console">Lucida Console</option>
+        <option value="Lucida Sans Unicode">Lucida Sans Unicode</option><option value="Century Gothic">Century Gothic</option>
+        <option value="Bookman Old Style">Bookman Old Style</option><option value="Garamond">Garamond</option>
+        <option value="Segoe UI">Segoe UI</option><option value="Segoe UI Black">Segoe UI Black</option>
+        <option value="system-ui">System UI</option><option value="sans-serif">Generic Sans Serif</option>
+        <option value="serif">Generic Serif</option><option value="monospace">Generic Monospace</option>
+      </select></div>
+      <label>Custom background image <input id="thumbBackground" type="file" accept="image/png,image/jpeg,image/webp"></label>
+      <div class="field"><span>VS logo style</span><select id="thumbLogoStyle">
+        <option value="classic">1 — Classic</option><option value="brush" selected>2 — Brush</option><option value="outline">3 — Outline</option><option value="minimal">4 — Minimal</option><option value="circle">5 — Circle</option>
+      </select></div>
+      <h4>Layout profiles</h4>
+      <div class="field"><span>Saved profile</span><select id="thumbProfileSlot"><option value="1">Profile 1</option><option value="2">Profile 2</option><option value="3">Profile 3</option><option value="4">Profile 4</option><option value="5">Profile 5</option></select></div>
+      <div class="importrow"><button id="thumbSaveProfile" type="button">Save current layout to profile</button><button id="thumbLoadProfile" type="button">Load profile</button></div>
+      <p class="hint">Save up to five different thumbnail layouts. Profiles are stored on this computer.</p>
+      <button id="thumbReset" type="button">Return to default</button>
+      <button id="thumbToggleLayout" type="button" aria-expanded="true">Hide layout controls</button>
+      <div id="thumbLayoutControls">
+        <h4>VS logo layout</h4>
+        <div class="field"><span>VS logo size</span><input id="thumbLogoSize" type="range" min="60" max="420" step="10" value="220"><output id="thumbLogoSizeOut">220 px wide</output></div>
+        <div class="field"><span>VS logo color</span><input id="thumbLogoColor" type="color" value="#ffffff"><output id="thumbLogoColorOut">#ffffff</output></div>
+        <div class="field"><span>VS logo horizontal position</span><input id="thumbLogoX" type="range" min="-360" max="360" step="5" value="0"><output id="thumbLogoXOut">0 px</output></div>
+        <div class="field"><span>VS logo vertical position</span><input id="thumbLogoY" type="range" min="80" max="650" step="5" value="355"><output id="thumbLogoYOut">355 px</output></div>
+        <h4>Character artwork layout</h4>
+        <h4>Country flag layout</h4>
+        <div class="field"><span>Country flag size</span><input id="thumbFlagSize" type="range" min="16" max="100" step="2" value="44"><output id="thumbFlagSizeOut">44 px wide</output></div>
+        <h4>Text outlines</h4>
+        <div class="field"><span>Text outline color</span><input id="thumbTextOutlineColor" type="color" value="#000000"><output id="thumbTextOutlineColorOut">#000000</output></div>
+        <div class="field"><span>Text outline thickness</span><input id="thumbTextOutlineWidth" type="range" min="0" max="8" step="0.5" value="3"><output id="thumbTextOutlineWidthOut">3 px</output></div>
+        <div class="field"><span>Character image size</span><input id="thumbCharacterSize" type="range" min="60" max="150" step="5" value="100"><output id="thumbCharacterSizeOut">100%</output></div>
+        <div class="field"><span>Character vertical position</span><input id="thumbCharacterY" type="range" min="50" max="230" step="5" value="88"><output id="thumbCharacterYOut">88 px</output></div>
+        <div class="field"><span>Player 1 horizontal position</span><input id="thumbP1X" type="range" min="-180" max="180" step="5" value="0"><output id="thumbP1XOut">0 px</output></div>
+        <div class="field"><span>Player 2 horizontal position</span><input id="thumbP2X" type="range" min="-180" max="180" step="5" value="0"><output id="thumbP2XOut">0 px</output></div>
+        <h4>Player name layout</h4>
+        <div class="field"><span>Player 1 name horizontal position</span><input id="thumbP1NameX" type="range" min="-220" max="220" step="5" value="0"><output id="thumbP1NameXOut">0 px</output></div>
+        <div class="field"><span>Player 1 name vertical position</span><input id="thumbP1NameY" type="range" min="90" max="300" step="5" value="130"><output id="thumbP1NameYOut">130 px</output></div>
+        <div class="field"><span>Player 2 name horizontal position</span><input id="thumbP2NameX" type="range" min="-220" max="220" step="5" value="0"><output id="thumbP2NameXOut">0 px</output></div>
+        <div class="field"><span>Player 2 name vertical position</span><input id="thumbP2NameY" type="range" min="90" max="300" step="5" value="130"><output id="thumbP2NameYOut">130 px</output></div>
+        <h4>Character name layout</h4>
+        <div class="field"><span>Character name size</span><input id="thumbCharacterNameSize" type="range" min="12" max="40" step="2" value="19"><output id="thumbCharacterNameSizeOut">19 px</output></div>
+        <div class="field"><span>Player 1 character name horizontal position</span><input id="thumbP1CharX" type="range" min="-220" max="220" step="5" value="0"><output id="thumbP1CharXOut">0 px</output></div>
+        <div class="field"><span>Player 1 character name vertical position</span><input id="thumbP1CharY" type="range" min="110" max="330" step="5" value="170"><output id="thumbP1CharYOut">170 px</output></div>
+        <div class="field"><span>Player 2 character name horizontal position</span><input id="thumbP2CharX" type="range" min="-220" max="220" step="5" value="0"><output id="thumbP2CharXOut">0 px</output></div>
+        <div class="field"><span>Player 2 character name vertical position</span><input id="thumbP2CharY" type="range" min="110" max="330" step="5" value="170"><output id="thumbP2CharYOut">170 px</output></div>
+        <div class="field"><span>Player name size</span><input id="thumbPlayerNameSize" type="range" min="20" max="64" step="2" value="40"><output id="thumbPlayerNameSizeOut">40 px</output></div>
+      </div>
+      <p class="hint">Choose any of five built-in VS logo styles, adjust its color/size/position, and independently position player and character names. Use Return to default to reset thumbnail settings. Change controls then generate the preview again.</p>
+      <div class="importrow"><input id="thumbTitle" type="text" placeholder="Video title (e.g. Lynn vs Kenj182)" value="Project+ Match"><button id="thumbGenerate" class="primary">Generate thumbnail</button><button id="thumbDownload">Download PNG</button></div>
+      <canvas id="thumbCanvas" width="1280" height="720" style="width:100%;max-width:960px;aspect-ratio:16/9;background:#031008;border-radius:12px;border:1px solid #244;display:block;margin-top:14px"></canvas>
+      <p id="thumbMsg" class="hint">Fill the players in Match, press Update, then generate your thumbnail.</p>
+    </div>
+  </section>
+
 </main>
 <script src="/overlays/themes.js"></script>
 <script src="panel.js"></script>

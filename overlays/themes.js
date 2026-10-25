@@ -18,7 +18,7 @@
   }
   const defs = [
     ['green', 'Green', null], ['teal', 'Teal', [176, 140, 1]], ['blue', 'Blue', [215, 180, 1]], ['purple', 'Purple', [268, 305, 1]],
-    ['pink', 'Pink', [322, 48, 1]], ['red', 'Red', [356, 42, 1]], ['orange', 'Orange', [24, 54, 1]], ['gold', 'Gold', [46, 68, 1]], ['steel', 'Steel', [212, 190, .28]],
+    ['pink', 'Pink', [322, 48, 1]], ['red', 'Red', [356, 42, 1]], ['orange', 'Orange', [24, 54, 1]], ['gold', 'Gold', [46, 68, 1]], ['steel', 'Steel', [212, 190, .28]], ['crimson', 'Crimson', [345, 8, 1]], ['iceblue', 'Ice Blue', [198, 170, .72]], ['violet', 'Violet', [285, 330, .95]],
   ];
   const themes = defs.map(([id, name, p]) => {
     const vars = p ? make(p[0], p[1], p[2]) : null;
